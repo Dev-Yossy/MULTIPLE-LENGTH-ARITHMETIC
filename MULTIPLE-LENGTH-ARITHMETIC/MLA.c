@@ -5,14 +5,14 @@
 
 int main(void)
 {
-	srand(time(NULL));
+	srand((unsigned)time(NULL));
 
 	struct NUMBER a, b;
 
 	clearByZero(&a);
 	clearByZero(&b);
 
-	setRnd(&a, 15);
+	setRnd(&a, 3);
 
 	printf("a = ");
 	dispNumber(&a);
@@ -28,6 +28,11 @@ int main(void)
 
 	printf("b = ");
 	dispNumber(&b);
+	putchar('\n');
+
+	setInt(&a, 123);
+	printf("a = ");
+	dispNumber(&a);
 	putchar('\n');
 
 	return 0;
