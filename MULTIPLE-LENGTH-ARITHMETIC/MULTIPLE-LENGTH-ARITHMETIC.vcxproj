@@ -18,9 +18,16 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MLA.c" />
+    <ClCompile Include="mulprec.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="mulprec.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{42FD6CB8-D003-452F-84C8-32BBA566DC9D}</ProjectGuid>
+    <ProjectGuid>{18F98383-C31F-4DD1-A1B5-D23CD4D187DD}</ProjectGuid>
     <RootNamespace>MULTIPLELENGTHARITHMETIC</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -122,9 +129,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="MLA.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

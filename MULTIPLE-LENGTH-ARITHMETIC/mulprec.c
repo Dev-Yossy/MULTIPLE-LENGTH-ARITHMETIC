@@ -1,53 +1,9 @@
+#include "mulprec.h"
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
 
-#define KETA 30
 
-struct NUMBER
-{
-	int n[KETA];    //äeåÖÇÃíl [è„ÇÃåÖ]---[â∫ÇÃåÖ] [KETA - 1]---[0]
-	int sign;       //ïÑçÜïœêî 1:ê≥ 0, -1:ïâ
-};
-
-void clearByZero(struct NUMBER* a);
-void dispNumber(struct NUMBER* a);
-void setRnd(struct NUMBER* a, int k);
-void copyNumber(struct NUMBER* a, struct NUMBER* b);
-void getAbs(struct NUMBER* a, struct NUMBER* b);
-int isZero(struct NUMBER* a);
-int mulBy10(struct NUMBER* a, struct NUMBER* b);
-int divBy10(struct NUMBER* a, struct NUMBER* b);
-
-int main(void)
-{
-	srand(time(NULL));
-
-	struct NUMBER a, b;
-
-	clearByZero(&a);
-	clearByZero(&b);
-
-	setRnd(&a, 15);
-
-	printf("a = ");
-	dispNumber(&a);
-	putchar('\n');
-
-	mulBy10(&a, &b);
-
-	printf("b = ");
-	dispNumber(&b);
-	putchar('\n');
-
-	divBy10(&a, &b);
-
-	printf("b = ");
-	dispNumber(&b);
-	putchar('\n');
-
-	return 0;
-}
 
 void clearByZero(struct NUMBER* a)
 {
