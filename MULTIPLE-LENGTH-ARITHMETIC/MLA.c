@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "mulprec.h"
 
-void check_setInt(struct NUMBER* a, int roop);
+
 
 int main(void)
 {
@@ -44,32 +44,4 @@ int main(void)
 	check_setInt(&a, 10000000);
 
 	return 0;
-}
-
-
-void check_setInt(struct NUMBER *a, int roop)
-{
-	int i, roopDiv100 = roop / 100;
-
-	printf("\r%4d %%\r", 0);
-
-	for (i = 0; i < roop; i++)
-	{
-		int x = rand();
-		setInt(a, x);
-
-		if (check(a, x+1))
-		{
-			printf("a = ");
-			dispNumber(a);
-			putchar('\n');
-			printf("x = %d\n", x);
-		}
-
-		if ((i + 1) % roopDiv100 == 0)
-		{
-			printf("\r%4d %%\r", (i + 1) / roopDiv100);
-		}
-	}
-	printf("\r%4d %% --- Done !\n", 100);
 }

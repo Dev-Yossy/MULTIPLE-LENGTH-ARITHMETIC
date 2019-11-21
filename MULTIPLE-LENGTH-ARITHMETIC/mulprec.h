@@ -3,6 +3,9 @@
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+
+
+
 //////////////////////////////////////////////////////////////////////////////////////
 //      Define      (’è‹`)
 //////////////////////////////////////////////////////////////////////////////////////
@@ -36,19 +39,19 @@ struct NUMBER
 //////////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------------
 
-void clearByZero(struct NUMBER* a);
-void dispNumber(struct NUMBER* a);
-void setRnd(struct NUMBER* a, int k);
-void copyNumber(struct NUMBER* a, struct NUMBER* b);
-void getAbs(struct NUMBER* a, struct NUMBER* b);
-int isZero(struct NUMBER* a);
-int mulBy10(struct NUMBER* a, struct NUMBER* b);
-int divBy10(struct NUMBER* a, struct NUMBER* b);
-int setInt(struct NUMBER* a, int x);
-int setSign(struct NUMBER* a, int s);
-int getSign(struct NUMBER* a);
-int numComp(struct NUMBER* a, struct NUMBER* b);
-int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c);
+void clearByZero(struct NUMBER*);
+void dispNumber(struct NUMBER*);
+void setRnd(struct NUMBER*, int);
+void copyNumber(struct NUMBER*, struct NUMBER*);
+void getAbs(struct NUMBER*, struct NUMBER*);
+int isZero(struct NUMBER*);
+int mulBy10(struct NUMBER*, struct NUMBER*);
+int divBy10(struct NUMBER*, struct NUMBER*);
+int setInt(struct NUMBER*, int);
+int setSign(struct NUMBER*, int);
+int getSign(struct NUMBER*);
+int numComp(struct NUMBER*, struct NUMBER*);
+int add(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 
 
 //------------------------------------------------------------------------------------
