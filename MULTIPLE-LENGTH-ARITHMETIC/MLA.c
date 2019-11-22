@@ -41,7 +41,32 @@ int main(void)
 
 	*/
 
-	check_setInt(&a, 10000000);
+	//check_setInt(&a, 10000000);
+
+	struct NUMBER c;
+	clearByZero(&c);
+
+	int x = 123456;
+	int y = 1;
+
+	setInt(&a, x);
+	setInt(&b, y);
+
+	printf("a = ");
+	dispNumber(&a);
+	putchar('\n');
+
+	printf("b = ");
+	dispNumber(&b);
+	putchar('\n');
+
+	printf("%s\n", add(&a, &b, &c) ? "¸”s" : "¬Œ÷");
+
+	printf("c = ");
+	dispNumber(&c);
+	putchar('\n');
+
+	printf(">>> %d\n", check(&c, x + y));
 
 	return 0;
 }
