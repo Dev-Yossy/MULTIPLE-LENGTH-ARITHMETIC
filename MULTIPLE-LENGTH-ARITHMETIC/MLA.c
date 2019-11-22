@@ -47,10 +47,15 @@ int main(void)
 	clearByZero(&c);
 
 	int x = 123456;
-	int y = 1;
+	int y = 999999;
 
 	setInt(&a, x);
 	setInt(&b, y);
+
+	for (int i = 0; i < KETA; i++)
+	{
+		b.n[i] = 9;
+	}
 
 	printf("a = ");
 	dispNumber(&a);
@@ -60,13 +65,13 @@ int main(void)
 	dispNumber(&b);
 	putchar('\n');
 
-	printf("%s\n", add(&a, &b, &c) ? "Ž¸”s" : "¬Œ÷");
+	printf("%s\n", sub(&a, &b, &c) ? "Ž¸”s" : "¬Œ÷");
 
 	printf("c = ");
 	dispNumber(&c);
 	putchar('\n');
 
-	printf(">>> %d\n", check(&c, x + y));
+	printf(">>> %d\n", check(&c, x - y));
 
 	return 0;
 }
