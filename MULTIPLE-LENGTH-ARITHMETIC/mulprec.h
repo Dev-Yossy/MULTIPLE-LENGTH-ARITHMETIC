@@ -52,7 +52,7 @@ int setSign(struct NUMBER*, int);
 int getSign(struct NUMBER*);
 int numComp(struct NUMBER*, struct NUMBER*);
 int add(struct NUMBER*, struct NUMBER*, struct NUMBER*);
-
+int sub(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 
 //------------------------------------------------------------------------------------
 

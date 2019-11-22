@@ -16,7 +16,7 @@ void clearByZero(struct NUMBER* a)
 	{
 		a->n[i] = 0;
 	}
-	a->sign = 1;
+	setSign(a, 1);
 }
 
 
@@ -28,7 +28,7 @@ void clearByZero(struct NUMBER* a)
 void dispNumber(struct NUMBER* a)
 {
 	int i;
-	if (a->sign >= 0)
+	if (getSign(a) >= 0)
 	{
 		putchar('+');
 	}
@@ -58,7 +58,7 @@ void setRnd(struct NUMBER* a, int k)
 		a->n[i] = rand() % 10;
 	}
 	//•„†
-	a->sign = (rand() % 2 == 1) ? 1 : -1;
+	setSign(a, (rand() % 2 == 1) ? 1 : -1);
 }
 
 
@@ -76,7 +76,7 @@ void copyNumber(struct NUMBER* a, struct NUMBER* b)
 		b->n[i] = a->n[i];
 	}
 	//•„†
-	b->sign = a->sign;
+	setSign(b, getSign(a));
 }
 
 
@@ -88,7 +88,7 @@ void copyNumber(struct NUMBER* a, struct NUMBER* b)
 void getAbs(struct NUMBER* a, struct NUMBER* b)
 {
 	copyNumber(a, b);
-	b->sign = 1;
+	setSign(b, 1);
 }
 
 
@@ -99,7 +99,7 @@ void getAbs(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 int isZero(struct NUMBER* a)
 {
-	if (a->sign == -1)
+	if (getSign(a) == -1)
 	{
 		return -1;
 	}
@@ -137,7 +137,7 @@ int mulBy10(struct NUMBER* a, struct NUMBER* b)
 	}
 
 	b->n[0] = 0;
-	b->sign = a->sign;
+	setSign(b, getSign(a));
 
 	return 0;
 }
@@ -157,7 +157,7 @@ int divBy10(struct NUMBER* a, struct NUMBER* b)
 	}
 
 	b->n[KETA - 1] = 0;
-	b->sign = a->sign;
+	setSign(b, getSign(a));
 
 	return a->n[0];
 }
@@ -186,11 +186,11 @@ int setInt(struct NUMBER* a, int x)
 
 	if (x < 0)
 	{
-		x = ~x + 1/*‚í‚ñ‚¿‚á‚ñ*-1‚Å‚àƒRƒ“ƒpƒCƒ‰‚Åˆ—‚³‚ê‚é*/, a->sign = -1;
+		x = ~x + 1/*‚í‚ñ‚¿‚á‚ñ*-1‚Å‚àƒRƒ“ƒpƒCƒ‰‚Åˆ—‚³‚ê‚é*/, setSign(a, 1);
 	}
 	else
 	{
-		a->sign = 1;
+		setSign(a, 1);
 	}
 
 	while (x > 0)
@@ -299,7 +299,7 @@ int numComp(struct NUMBER* a, struct NUMBER* b)
 
 ///////////////////////////////////////////////////////////////////
 //ŠT—vF‘½”{’·•Ï”a, b‚Ì˜a‚ğ‹‚ß‚Äc‚ÉŠi”[‚·‚é
-//ˆø”Fstruct NUMBER* a : ”äŠr‚·‚é‘½”{’·•Ï”(1), struct NUMBER* a : ”äŠr‚·‚é‘½”{’·•Ï”(2)
+//ˆø”Fstruct NUMBER* a : ‰ÁZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* a : ‰ÁZ‚·‚é‘½”{’·•Ï”(2)
 //–ß’lF¬Œ÷ : 0, ¸”s : -1(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 ///////////////////////////////////////////////////////////////////
 int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
@@ -317,6 +317,52 @@ int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 	}
 
 	if (carry)
+	{
+		return -1;
+	}
+
+	copyNumber(&tmp, c);
+
+	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////
+//ŠT—vF‘½”{’·•Ï”a, b‚Ì·‚ğ‹‚ß‚Äc‚ÉŠi”[‚·‚é
+//ˆø”Fstruct NUMBER* a : Œ¸Z‚·‚é‘½”{’·•Ï”(1), struct NUMBER* a : Œ¸Z‚·‚é‘½”{’·•Ï”(2)
+//–ß’lF¬Œ÷ : 0, ¸”s : -1(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
+///////////////////////////////////////////////////////////////////
+int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER tmp;
+	int borrow = 0;
+	int i = 0;
+
+	clearByZero(&tmp);
+
+	if (numComp(a, b) < 0)
+	{
+		sub(b, a, &tmp);
+		setSign(&tmp, -1);
+		copyNumber(&tmp, c);
+		return 0;
+	}
+
+	for(i = 0; i <  KETA; i++)
+	{
+		if (a->n[i] -borrow >= b->n[i])
+		{
+			tmp.n[i] = a->n[i] - borrow - b->n[i];
+			borrow = 0;
+		}
+		else
+		{
+			tmp.n[i] = 10 + a->n[i] - borrow- b->n[i];
+			borrow = 1;
+		}
+	}
+
+	if (borrow != 0)
 	{
 		return -1;
 	}
