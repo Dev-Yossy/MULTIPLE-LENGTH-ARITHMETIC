@@ -3,7 +3,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数を0に初期化する
 //引数：struct NUMBER* a : 初期化する多倍長変数
@@ -422,6 +421,16 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 //                       以下チェック用                          //
 ///////////////////////////////////////////////////////////////////
 
+
+void RoopFunction_for_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), struct NUMBER* a, struct NUMBER* b, struct NUMBER* c,unsigned int roop)
+{
+	unsigned int i;
+	for (i = 0; i < roop; i++)
+	{
+		func(a, b, c);
+	}
+}
+
 void check_setInt(struct NUMBER* a, int roop)
 {
 	int i, roopDiv100 = roop / 100;
@@ -483,3 +492,4 @@ int check(struct NUMBER* a, int x)
 	}
 	return 0;
 }
+

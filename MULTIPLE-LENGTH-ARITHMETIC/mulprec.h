@@ -64,6 +64,7 @@ int sub(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 //////////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------------
 
+void RoopFunction_for_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), struct NUMBER*, struct NUMBER*, struct NUMBER*, unsigned int);
 void check_setInt(struct NUMBER* a, int roop);
 int check(struct NUMBER* a, int x);
 
