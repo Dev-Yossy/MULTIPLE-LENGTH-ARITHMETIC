@@ -6,7 +6,7 @@
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数を0に初期化する
-//引数：struct NUMBER* a : 初期化する数字
+//引数：struct NUMBER* a : 初期化する多倍長変数
 //戻値：なし
 ///////////////////////////////////////////////////////////////////
 void clearByZero(struct NUMBER* a)
@@ -22,7 +22,7 @@ void clearByZero(struct NUMBER* a)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数を表示する
-//引数：struct NUMBER* a : 表示する数字
+//引数：struct NUMBER* a : 表示する多倍長変数
 //戻値：なし
 ///////////////////////////////////////////////////////////////////
 void dispNumber(struct NUMBER* a)
@@ -46,7 +46,7 @@ void dispNumber(struct NUMBER* a)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数に乱数を格納する
-//引数：struct NUMBER* a : 乱数を格納する数字, int k : 生成する乱数の桁数
+//引数：struct NUMBER* a : 乱数を格納する多倍長変数, int k : 生成する乱数の桁数
 //戻値：なし
 ///////////////////////////////////////////////////////////////////
 void setRnd(struct NUMBER* a, int k)
@@ -64,7 +64,7 @@ void setRnd(struct NUMBER* a, int k)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数をコピーする
-//引数：struct NUMBER* a : コピーする数字, struct NUMBER* b : コピーされる数字
+//引数：struct NUMBER* a : コピーする多倍長変数, struct NUMBER* b : コピーされる多倍長変数
 //戻値：なし
 ///////////////////////////////////////////////////////////////////
 void copyNumber(struct NUMBER* a, struct NUMBER* b)
@@ -82,7 +82,7 @@ void copyNumber(struct NUMBER* a, struct NUMBER* b)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数の絶対値を求めて格納する
-//引数：struct NUMBER* a : 絶対値を求める数字, int k : 絶対値を格納する数字
+//引数：struct NUMBER* a : 絶対値を求める多倍長変数, struct NUMBER* b : 絶対値を格納する多倍長変数
 //戻値：なし
 ///////////////////////////////////////////////////////////////////
 void getAbs(struct NUMBER* a, struct NUMBER* b)
@@ -94,7 +94,7 @@ void getAbs(struct NUMBER* a, struct NUMBER* b)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数が0かどうかを判別する
-//引数：struct NUMBER* a : 判別する数字
+//引数：struct NUMBER* a : 判別する多倍長変数
 //戻値：0のとき : 0, それ以外のとき : -1
 ///////////////////////////////////////////////////////////////////
 int isZero(struct NUMBER* a)
@@ -119,7 +119,7 @@ int isZero(struct NUMBER* a)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数を10倍して格納する
-//引数：struct NUMBER* a : 10倍したい数字, struct NUMBER* b : 計算した値を格納する数字
+//引数：struct NUMBER* a : 10倍したい多倍長変数, struct NUMBER* b : 計算した値を格納する多倍長変数
 //戻値：成功 : 0, 桁あふれ : -1(bの値は変化しない)
 ///////////////////////////////////////////////////////////////////
 int mulBy10(struct NUMBER* a, struct NUMBER* b)
@@ -145,7 +145,7 @@ int mulBy10(struct NUMBER* a, struct NUMBER* b)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数を10で割った商を格納する
-//引数：struct NUMBER* a : 1/10にしたい数字, struct NUMBER* b : 計算した値を格納する数字
+//引数：struct NUMBER* a : 1/10にしたい多倍長変数, struct NUMBER* b : 計算した値を格納する多倍長変数
 //戻値：成功 : 余り
 ///////////////////////////////////////////////////////////////////
 int divBy10(struct NUMBER* a, struct NUMBER* b)
@@ -164,7 +164,7 @@ int divBy10(struct NUMBER* a, struct NUMBER* b)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数にint型の数字を格納する
-//引数：struct NUMBER* a : 格納される数字, int x : 格納したい数字
+//引数：struct NUMBER* a : 格納される多倍長変数, int x : 格納したい多倍長変数
 //戻値：成功 : 0, 失敗 : -1(aの値は変化しない)
 ///////////////////////////////////////////////////////////////////
 int setInt(struct NUMBER* a, int x)
@@ -186,7 +186,7 @@ int setInt(struct NUMBER* a, int x)
 
 	if (x < 0)
 	{
-		x = ~x + 1/*わんちゃん*-1でもコンパイラで処理される*/, setSign(a, 1);
+		x = ~x + 1/*わんちゃん*-1でもコンパイラで処理される*/, setSign(a, -1);
 	}
 	else
 	{
@@ -203,7 +203,7 @@ int setInt(struct NUMBER* a, int x)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数の符号を設定する
-//引数：struct NUMBER* a : 設定される数字, int x : 設定する符号(+ : 1, - : -1)
+//引数：struct NUMBER* a : 設定される多倍長変数, int x : 設定する符号(+ : 1, - : -1)
 //戻値：成功 : 0, 失敗 : -1(aの符号は変化しない)
 ///////////////////////////////////////////////////////////////////
 int setSign(struct NUMBER* a, int s)
@@ -219,7 +219,7 @@ int setSign(struct NUMBER* a, int s)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数の符号を取得する
-//引数：struct NUMBER* a : 符号を取得する数字
+//引数：struct NUMBER* a : 符号を取得する多倍長変数
 //戻値：正 : 1, 負 : -1
 ///////////////////////////////////////////////////////////////////
 int getSign(struct NUMBER* a)
@@ -229,7 +229,7 @@ int getSign(struct NUMBER* a)
 
 
 ///////////////////////////////////////////////////////////////////
-//概要：多倍長変数a, bの数字を比較する
+//概要：多倍長変数a, bを比較する
 //引数：struct NUMBER* a : 比較する多倍長変数(1), struct NUMBER* a : 比較する多倍長変数(2)
 //戻値：a == b : 0, a > b : 1, a < b : -1
 ///////////////////////////////////////////////////////////////////
@@ -304,19 +304,42 @@ int numComp(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
-	int d, i = 0, carry = 0;//min...0, max...1
+	int d, i = 0, flag = 0;//min...0, max...1
 	struct NUMBER tmp;		//tmpを使うことで失敗時にcのデータが壊れないようにいている
 
 	clearByZero(&tmp);
 
-	for (i = 0; i < KETA; i++)
+	if (getSign(a) < 0 && getSign(b) < 0)		//a < 0, b < 0 --- a + b = -(|a| + |b|)
 	{
-		d = a->n[i] + b->n[i] + carry;
-		tmp.n[i] = d % 10;
-		carry = d / 10;
+		struct NUMBER tmp_a, tmp_b;
+		getAbs(a, &tmp_a), getAbs(b, &tmp_b);
+		flag = add(&tmp_a, &tmp_b, &tmp);
+		setSign(&tmp, -1);
+	}
+	else if (getSign(a) < 0 && getSign(b) > 0)	//a < 0, b > 0 --- a + b = b - |a| 
+	{
+		struct NUMBER tmp_a;
+		getAbs(a, &tmp_a);
+		flag = sub(b, &tmp_a, &tmp);
+	}
+	else if (getSign(a) > 0 && getSign(b) < 0)	//a > 0, b < 0 --- a + b = a - |b|
+	{
+		struct NUMBER tmp_b;
+		getAbs(b, &tmp_b);
+		flag = sub(a, &tmp_b, &tmp);
+	}
+	else
+	{
+		//加算
+		for (i = 0; i < KETA; i++)
+		{
+			d = a->n[i] + b->n[i] + flag;
+			tmp.n[i] = d % 10;
+			flag = d / 10;
+		}
 	}
 
-	if (carry)
+	if (flag)
 	{
 		return -1;
 	}
@@ -335,34 +358,56 @@ int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
 	struct NUMBER tmp;
-	int borrow = 0;
+	int flag = 0;
 	int i = 0;
 
 	clearByZero(&tmp);
 
-	if (numComp(a, b) < 0)
+
+	if (getSign(a) < 0 && getSign(b) < 0)		//a < 0, b < 0 --- a - b = |b| - |a|
 	{
-		sub(b, a, &tmp);
+		struct NUMBER tmp_a, tmp_b;
+		getAbs(a, &tmp_a), getAbs(b, &tmp_b);
+		flag = sub(&tmp_b, &tmp_a, &tmp);
+	}
+	else if (getSign(a) < 0 && getSign(b) > 0)	//a < 0, b > 0 --- a - b = -(|a| + b)
+	{
+		struct NUMBER tmp_a;
+		getAbs(a, &tmp_a);
+		flag = add(&tmp_a, b, &tmp);
 		setSign(&tmp, -1);
-		copyNumber(&tmp, c);
-		return 0;
 	}
-
-	for(i = 0; i <  KETA; i++)
+	else if (getSign(a) > 0 && getSign(b) < 0)	//a > 0, b < 0 --- a - b = a + |b|
 	{
-		if (a->n[i] -borrow >= b->n[i])
+		struct NUMBER tmp_b;
+		getAbs(b, &tmp_b);
+		flag = add(a, &tmp_b, &tmp);
+	}
+	//ここから減算
+	else if (numComp(a, b) < 0)			//a < b
+	{
+		flag = sub(b, a, &tmp);
+		setSign(&tmp, -1);
+	}
+	else
+	{
+		//減算
+		for (i = 0; i < KETA; i++)
 		{
-			tmp.n[i] = a->n[i] - borrow - b->n[i];
-			borrow = 0;
-		}
-		else
-		{
-			tmp.n[i] = 10 + a->n[i] - borrow- b->n[i];
-			borrow = 1;
+			if (a->n[i] - flag >= b->n[i])
+			{
+				tmp.n[i] = a->n[i] - flag - b->n[i];
+				flag = 0;
+			}
+			else
+			{
+				tmp.n[i] = 10 + a->n[i] - flag - b->n[i];
+				flag = 1;
+			}
 		}
 	}
 
-	if (borrow != 0)
+	if (flag != 0)
 	{
 		return -1;
 	}

@@ -43,6 +43,7 @@ int main(void)
 
 	//check_setInt(&a, 10000000);
 
+	/*
 	struct NUMBER c;
 	clearByZero(&c);
 
@@ -72,6 +73,86 @@ int main(void)
 	putchar('\n');
 
 	printf(">>> %d\n", check(&c, x - y));
+	*/
+
+	struct NUMBER d;
+	clearByZero(&d);
+	
+	printf("----------‰ÁZ--------------------------------------------------------------------");
+
+	setInt(&a, 12345);
+	setInt(&b, 12345);
+	printf("%s\n", add(&a, &b, &d) ? "¸”s" : "¬Œ÷");
+	printf("a = ");	dispNumber(&a);	putchar('\n');
+	printf("b = ");	dispNumber(&b);	putchar('\n');
+	printf("d = ");	dispNumber(&d);	putchar('\n');
+
+	putchar('\n');
+
+	setInt(&a, -12345);
+	setInt(&b, 12345);
+	printf("%s\n", add(&a, &b, &d) ? "¸”s" : "¬Œ÷");
+	printf("a = ");	dispNumber(&a);	putchar('\n');
+	printf("b = ");	dispNumber(&b);	putchar('\n');
+	printf("d = ");	dispNumber(&d);	putchar('\n');
+
+	putchar('\n');
+
+	setInt(&a, 12345);
+	setInt(&b, -12345);
+	printf("%s\n", add(&a, &b, &d) ? "¸”s" : "¬Œ÷");
+	printf("a = ");	dispNumber(&a);	putchar('\n');
+	printf("b = ");	dispNumber(&b);	putchar('\n');
+	printf("d = ");	dispNumber(&d);	putchar('\n');
+
+	putchar('\n');
+
+	setInt(&a, -12345);
+	setInt(&b, -12345);
+	printf("%s\n", add(&a, &b, &d) ? "¸”s" : "¬Œ÷");
+	printf("a = ");	dispNumber(&a);	putchar('\n');
+	printf("b = ");	dispNumber(&b);	putchar('\n');
+	printf("d = ");	dispNumber(&d);	putchar('\n');
+
+	putchar('\n');
+
+	printf("----------Œ¸Z--------------------------------------------------------------------");
+
+	setInt(&a, 12345);
+	setInt(&b, 12345);
+	printf("%s\n", sub(&a, &b, &d) ? "¸”s" : "¬Œ÷");
+	printf("a = ");	dispNumber(&a);	putchar('\n');
+	printf("b = ");	dispNumber(&b);	putchar('\n');
+	printf("d = ");	dispNumber(&d);	putchar('\n');
+
+	putchar('\n');
+
+	setInt(&a, -12345);
+	setInt(&b, 12345);
+	printf("%s\n", sub(&a, &b, &d) ? "¸”s" : "¬Œ÷");
+	printf("a = ");	dispNumber(&a);	putchar('\n');
+	printf("b = ");	dispNumber(&b);	putchar('\n');
+	printf("d = ");	dispNumber(&d);	putchar('\n');
+
+	putchar('\n');
+
+	setInt(&a, 12345);
+	setInt(&b, -12345);
+	printf("%s\n", sub(&a, &b, &d) ? "¸”s" : "¬Œ÷");
+	printf("a = ");	dispNumber(&a);	putchar('\n');
+	printf("b = ");	dispNumber(&b);	putchar('\n');
+	printf("d = ");	dispNumber(&d);	putchar('\n');
+
+	putchar('\n');
+
+	setInt(&a, -12345);
+	setInt(&b, -12345);
+	printf("%s\n", sub(&a, &b, &d) ? "¸”s" : "¬Œ÷");
+	printf("a = ");	dispNumber(&a);	putchar('\n');
+	printf("b = ");	dispNumber(&b);	putchar('\n');
+	printf("d = ");	dispNumber(&d);	putchar('\n');
+
+	putchar('\n');
 
 	return 0;
 }
