@@ -9,152 +9,19 @@ int main(void)
 {
 	srand((unsigned)time(NULL));
 
-	struct NUMBER a, b;
+	struct NUMBER a, b, c, d, e;
 
-	clearByZero(&a);
-	clearByZero(&b);
+	int roop_add = 100000;
+	printf("roop function \'add\' %d times.\n", roop_add);
+	printf("--- Start ---\n");
+	RoopFunction_for_Cul(add, roop_add, 10, None);
+	printf("--- Done ! ---\n");
 
-	/*
-	
-	setRnd(&a, 3);
-
-	printf("a = ");
-	dispNumber(&a);
-	putchar('\n');
-	
-	mulBy10(&a, &b);
-
-	printf("b = ");
-	dispNumber(&b);
-	putchar('\n');
-
-	divBy10(&a, &b);
-
-	printf("b = ");
-	dispNumber(&b);
-	putchar('\n');
-
-	setInt(&a, 123);
-	printf("a = ");
-	dispNumber(&a);
-	putchar('\n');
-
-	*/
-
-	//check_setInt(&a, 10000000);
-
-	/*
-	struct NUMBER c;
-	clearByZero(&c);
-
-	int x = 123456;
-	int y = 999999;
-
-	setInt(&a, x);
-	setInt(&b, y);
-
-	for (int i = 0; i < KETA; i++)
-	{
-		b.n[i] = 9;
-	}
-
-	printf("a = ");
-	dispNumber(&a);
-	putchar('\n');
-
-	printf("b = ");
-	dispNumber(&b);
-	putchar('\n');
-
-	printf("%s\n", sub(&a, &b, &c) ? "é∏îs" : "ê¨å˜");
-
-	printf("c = ");
-	dispNumber(&c);
-	putchar('\n');
-
-	printf(">>> %d\n", check(&c, x - y));
-	*/
-
-	/*
-	struct NUMBER d;
-	clearByZero(&d);
-	
-	printf("----------â¡éZ--------------------------------------------------------------------\n");
-
-	setInt(&a, 12345);
-	setInt(&b, 12345);
-	printf("%s\n", add(&a, &b, &d) ? "é∏îs" : "ê¨å˜");
-	printf("a = ");	dispNumber(&a);	putchar('\n');
-	printf("b = ");	dispNumber(&b);	putchar('\n');
-	printf("d = ");	dispNumber(&d);	putchar('\n');
-
-	putchar('\n');
-
-	setInt(&a, -12345);
-	setInt(&b, 12345);
-	printf("%s\n", add(&a, &b, &d) ? "é∏îs" : "ê¨å˜");
-	printf("a = ");	dispNumber(&a);	putchar('\n');
-	printf("b = ");	dispNumber(&b);	putchar('\n');
-	printf("d = ");	dispNumber(&d);	putchar('\n');
-
-	putchar('\n');
-
-	setInt(&a, 12345);
-	setInt(&b, -12345);
-	printf("%s\n", add(&a, &b, &d) ? "é∏îs" : "ê¨å˜");
-	printf("a = ");	dispNumber(&a);	putchar('\n');
-	printf("b = ");	dispNumber(&b);	putchar('\n');
-	printf("d = ");	dispNumber(&d);	putchar('\n');
-
-	putchar('\n');
-
-	setInt(&a, -12345);
-	setInt(&b, -12345);
-	printf("%s\n", add(&a, &b, &d) ? "é∏îs" : "ê¨å˜");
-	printf("a = ");	dispNumber(&a);	putchar('\n');
-	printf("b = ");	dispNumber(&b);	putchar('\n');
-	printf("d = ");	dispNumber(&d);	putchar('\n');
-
-	putchar('\n');
-
-	printf("----------å∏éZ--------------------------------------------------------------------\n");
-
-	setInt(&a, 12345);
-	setInt(&b, 12345);
-	printf("%s\n", sub(&a, &b, &d) ? "é∏îs" : "ê¨å˜");
-	printf("a = ");	dispNumber(&a);	putchar('\n');
-	printf("b = ");	dispNumber(&b);	putchar('\n');
-	printf("d = ");	dispNumber(&d);	putchar('\n');
-
-	putchar('\n');
-
-	setInt(&a, -12345);
-	setInt(&b, 12345);
-	printf("%s\n", sub(&a, &b, &d) ? "é∏îs" : "ê¨å˜");
-	printf("a = ");	dispNumber(&a);	putchar('\n');
-	printf("b = ");	dispNumber(&b);	putchar('\n');
-	printf("d = ");	dispNumber(&d);	putchar('\n');
-
-	putchar('\n');
-
-	setInt(&a, 12345);
-	setInt(&b, -12345);
-	printf("%s\n", sub(&a, &b, &d) ? "é∏îs" : "ê¨å˜");
-	printf("a = ");	dispNumber(&a);	putchar('\n');
-	printf("b = ");	dispNumber(&b);	putchar('\n');
-	printf("d = ");	dispNumber(&d);	putchar('\n');
-
-	putchar('\n');
-
-	setInt(&a, -12345);
-	setInt(&b, -12345);
-	printf("%s\n", sub(&a, &b, &d) ? "é∏îs" : "ê¨å˜");
-	printf("a = ");	dispNumber(&a);	putchar('\n');
-	printf("b = ");	dispNumber(&b);	putchar('\n');
-	printf("d = ");	dispNumber(&d);	putchar('\n');
-
-	putchar('\n');
-	*/
+	int roop_mul = 10;
+	printf("roop function \'mul\' %d times.\n", roop_mul);
+	printf("--- Start ---\n");
+	RoopFunction_for_Cul(multiple, roop_mul, 11, All);
+	printf("--- Done ! ---\n");
 
 	return 0;
 }
