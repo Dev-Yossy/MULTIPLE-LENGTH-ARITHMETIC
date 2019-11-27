@@ -124,6 +124,9 @@ int isZero(struct NUMBER* a)
 int mulBy10(struct NUMBER* a, struct NUMBER* b)
 {
 	int i;
+	struct NUMBER tmp;
+
+	clearByZero(&tmp);
 
 	if (a->n[KETA - 1] != 0)
 	{
@@ -132,11 +135,13 @@ int mulBy10(struct NUMBER* a, struct NUMBER* b)
 
 	for (i = 0; i < KETA - 1; i++)
 	{
-		b->n[i + 1] = a->n[i];
+		tmp.n[i + 1] = a->n[i];
 	}
 
-	b->n[0] = 0;
-	setSign(b, getSign(a));
+	tmp.n[0] = 0;
+	setSign(&tmp, getSign(a));
+
+	copyNumber(&tmp, b);
 
 	return 0;
 }
@@ -150,13 +155,20 @@ int mulBy10(struct NUMBER* a, struct NUMBER* b)
 int divBy10(struct NUMBER* a, struct NUMBER* b)
 {
 	int i;
+
+	struct NUMBER tmp;
+
+	clearByZero(&tmp);
+
 	for (i = 1; i < KETA; i++)
 	{
-		b->n[i - 1] = a->n[i];
+		tmp.n[i - 1] = a->n[i];
 	}
 
-	b->n[KETA - 1] = 0;
-	setSign(b, getSign(a));
+	tmp.n[KETA - 1] = 0;
+	setSign(&tmp, getSign(a));
+
+	copyNumber(&tmp, b);
 
 	return a->n[0];
 }
@@ -229,7 +241,7 @@ int getSign(struct NUMBER* a)
 
 ///////////////////////////////////////////////////////////////////
 //ŠT—vF‘½”{’·•Ï”a, b‚ð”äŠr‚·‚é
-//ˆø”Fstruct NUMBER* a : ”äŠr‚·‚é‘½”{’·•Ï”(1), struct NUMBER* a : ”äŠr‚·‚é‘½”{’·•Ï”(2)
+//ˆø”Fstruct NUMBER* a : ”äŠr‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : ”äŠr‚·‚é‘½”{’·•Ï”(2)
 //–ß’lFa == b : 0, a > b : 1, a < b : -1
 ///////////////////////////////////////////////////////////////////
 int numComp(struct NUMBER* a, struct NUMBER* b)
@@ -297,8 +309,21 @@ int numComp(struct NUMBER* a, struct NUMBER* b)
 
 
 ///////////////////////////////////////////////////////////////////
+//ŠT—vF‘½”{’·•Ï”a, b‚ÌŒðŠ·‚·‚é
+//ˆø”Fstruct NUMBER* a : ŒðŠ·‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : ŒðŠ·‚·‚é‘½”{’·•Ï”(2)
+//–ß’lF‚È‚µ
+///////////////////////////////////////////////////////////////////
+void swap(struct NUMBER* a, struct NUMBER* b)
+{
+	struct NUMBER tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
+
+///////////////////////////////////////////////////////////////////
 //ŠT—vF‘½”{’·•Ï”a, b‚Ì˜a‚ð‹‚ß‚Äc‚ÉŠi”[‚·‚é
-//ˆø”Fstruct NUMBER* a : ‰ÁŽZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* a : ‰ÁŽZ‚·‚é‘½”{’·•Ï”(2)
+//ˆø”Fstruct NUMBER* a : ‰ÁŽZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : ‰ÁŽZ‚·‚é‘½”{’·•Ï”(2)
 //–ß’lF¬Œ÷ : 0, Ž¸”s : -1(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 ///////////////////////////////////////////////////////////////////
 int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
@@ -351,7 +376,7 @@ int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 ///////////////////////////////////////////////////////////////////
 //ŠT—vF‘½”{’·•Ï”a, b‚Ì·‚ð‹‚ß‚Äc‚ÉŠi”[‚·‚é
-//ˆø”Fstruct NUMBER* a : Œ¸ŽZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* a : Œ¸ŽZ‚·‚é‘½”{’·•Ï”(2)
+//ˆø”Fstruct NUMBER* a : Œ¸ŽZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : Œ¸ŽZ‚·‚é‘½”{’·•Ï”(2)
 //–ß’lF¬Œ÷ : 0, Ž¸”s : -1(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 ///////////////////////////////////////////////////////////////////
 int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
@@ -418,46 +443,108 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 
 ///////////////////////////////////////////////////////////////////
+//ŠT—vF‘½”{’·•Ï”a, b‚ÌÏ‚ð‹‚ß‚Äc‚ÉŠi”[‚·‚é
+//ˆø”Fstruct NUMBER* a : æŽZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : æŽZ‚·‚é‘½”{’·•Ï”(2)
+//–ß’lF¬Œ÷ : 0, Ž¸”s : -1(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
+///////////////////////////////////////////////////////////////////
+int multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER ans, tmp;
+	int i, j, k, flag = 0;
+
+	clearByZero(&ans);
+	
+	if (numComp(a, b))
+	{
+
+	}
+
+	for (i = 0; i < KETA; i++)
+	{
+		clearByZero(&tmp);
+		for (j = 0; j < KETA; j++)
+		{
+			int e = a->n[j] * b->n[i] + flag;
+			tmp.n[j] = e % 10;
+			flag = e / 10;
+		}
+
+		if (flag)
+		{
+			return -1;
+		}
+
+		for (k = 0; k < i; k++)
+		{
+			if (mulBy10(&tmp, &tmp))
+			{
+				return -1;
+			}
+		}
+
+		if (add(&ans, &tmp, &ans))
+		{
+			return -1;
+		}
+	}
+
+	copyNumber(&ans, c);
+
+	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////
 //                       ˆÈ‰ºƒ`ƒFƒbƒN—p                          //
 ///////////////////////////////////////////////////////////////////
 
-
-void RoopFunction_for_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), struct NUMBER* a, struct NUMBER* b, struct NUMBER* c,unsigned int roop)
+void RoopFunction_for_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int roop, unsigned int size, enum ViewStyle style)
 {
 	unsigned int i;
+
+	struct NUMBER tmp_a, tmp_b, tmp_c;
+
+	clearByZero(&tmp_a);
+	clearByZero(&tmp_b);
+	clearByZero(&tmp_c);
+
 	for (i = 0; i < roop; i++)
 	{
-		func(a, b, c);
+		setRnd(&tmp_a, size);
+		setRnd(&tmp_b, size);
+
+		int flag = func(&tmp_a, &tmp_b, &tmp_c);
+
+		switch (style)
+		{
+		case None:
+			if (!flag)
+				break;
+		case All:
+			printf("Input1 = ");	dispNumber(&tmp_a);	putchar('\n');
+			printf("Input2 = ");	dispNumber(&tmp_b);	putchar('\n');
+		case OnlyAnswer:
+			printf("Answer = ");	dispNumber(&tmp_c);	putchar('\n');
+			break;
+		}
 	}
 }
 
 void check_setInt(struct NUMBER* a, int roop)
 {
-	int i, roopDiv100 = roop / 100;
+	int x = rand();
+	setInt(a, x);
 
-	printf("\r%4d %%\r", 0);
-
-	for (i = 0; i < roop; i++)
+	if (check(a, x))
 	{
-		int x = rand();
-		setInt(a, x);
-
-		if (check(a, x))
-		{
-			printf("a = ");
-			dispNumber(a);
-			putchar('\n');
-			printf("x = %d\n", x);
-		}
-
-		if ((i + 1) % roopDiv100 == 0)
-		{
-			printf("\r%4d %%\r", (i + 1) / roopDiv100);
-		}
+		printf("a = ");
+		dispNumber(a);
+		putchar('\n');
+		printf("x = %d\n", x);
 	}
-	printf("\r%4d %% --- Done !\n", 100);
 }
 
+//a, x‚ª“™‚µ‚¯‚ê‚Î0, ˆá‚¤‚È‚ç-1
 int check(struct NUMBER* a, int x)
 {
 	int i;

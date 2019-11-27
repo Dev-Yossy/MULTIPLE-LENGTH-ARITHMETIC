@@ -11,7 +11,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------------
 
-#define KETA 23
+#define KETA 20
 
 //------------------------------------------------------------------------------------
 
@@ -27,6 +27,13 @@ struct NUMBER
 {
 	int n[KETA];    //äeåÖÇÃíl [è„ÇÃåÖ]---[â∫ÇÃåÖ] [KETA - 1]---[0]
 	int sign;       //ïÑçÜïœêî 1:ê≥ 0, -1:ïâ
+};
+
+enum ViewStyle
+{
+	None,
+	OnlyAnswer,
+	All,
 };
 
 //------------------------------------------------------------------------------------
@@ -51,9 +58,10 @@ int setInt(struct NUMBER*, int);
 int setSign(struct NUMBER*, int);
 int getSign(struct NUMBER*);
 int numComp(struct NUMBER*, struct NUMBER*);
+void swap(struct NUMBER*, struct NUMBER*);
 int add(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int sub(struct NUMBER*, struct NUMBER*, struct NUMBER*);
-
+int multiple(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 //------------------------------------------------------------------------------------
 
 
@@ -64,7 +72,7 @@ int sub(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 //////////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------------
 
-void RoopFunction_for_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), struct NUMBER*, struct NUMBER*, struct NUMBER*, unsigned int);
+void RoopFunction_for_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int, unsigned int, enum ViewStyle);
 void check_setInt(struct NUMBER* a, int roop);
 int check(struct NUMBER* a, int x);
 
