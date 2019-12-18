@@ -62,6 +62,8 @@ void swap(struct NUMBER*, struct NUMBER*);
 int add(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int sub(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int multiple(struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int Dev_multiple(struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int divide(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
 //------------------------------------------------------------------------------------
 
 
@@ -72,8 +74,8 @@ int multiple(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 //////////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------------
 
-void RoopFunction_for_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int, unsigned int, enum ViewStyle);
+void RoopFunction_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int, unsigned int, enum ViewStyle);
 void check_setInt(struct NUMBER* a, int roop);
-int check(struct NUMBER* a, int x);
+int checkNumber(struct NUMBER* a, int x);
 
 //------------------------------------------------------------------------------------

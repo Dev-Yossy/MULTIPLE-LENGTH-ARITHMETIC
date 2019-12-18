@@ -323,7 +323,7 @@ void swap(struct NUMBER* a, struct NUMBER* b)
 
 ///////////////////////////////////////////////////////////////////
 //ŠT—vF‘½”{’·•Ï”a, b‚Ì˜a‚ğ‹‚ß‚Äc‚ÉŠi”[‚·‚é
-//ˆø”Fstruct NUMBER* a : ‰ÁZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : ‰ÁZ‚·‚é‘½”{’·•Ï”(2)
+//ˆø”Fstruct NUMBER* a : ‰ÁZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : ‰ÁZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : ˜a‚ğŠi”[‚·‚é‘½”{’·•Ï”
 //–ß’lF¬Œ÷ : 0, ¸”s : -1(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 ///////////////////////////////////////////////////////////////////
 int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
@@ -376,7 +376,7 @@ int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 ///////////////////////////////////////////////////////////////////
 //ŠT—vF‘½”{’·•Ï”a, b‚Ì·‚ğ‹‚ß‚Äc‚ÉŠi”[‚·‚é
-//ˆø”Fstruct NUMBER* a : Œ¸Z‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : Œ¸Z‚·‚é‘½”{’·•Ï”(2)
+//ˆø”Fstruct NUMBER* a : Œ¸Z‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : Œ¸Z‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : ·‚ğŠi”[‚·‚é‘½”{’·•Ï”
 //–ß’lF¬Œ÷ : 0, ¸”s : -1(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 ///////////////////////////////////////////////////////////////////
 int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
@@ -444,7 +444,7 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 ///////////////////////////////////////////////////////////////////
 //ŠT—vF‘½”{’·•Ï”a, b‚ÌÏ‚ğ‹‚ß‚Äc‚ÉŠi”[‚·‚é
-//ˆø”Fstruct NUMBER* a : æZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : æZ‚·‚é‘½”{’·•Ï”(2)
+//ˆø”Fstruct NUMBER* a : æZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : æZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : Ï‚ğŠi”[‚·‚é‘½”{’·•Ï”
 //–ß’lF¬Œ÷ : 0, ¸”s : -1(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 ///////////////////////////////////////////////////////////////////
 int multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
@@ -452,12 +452,13 @@ int multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 	struct NUMBER ans, tmp;
 	int i, j, k, flag = 0;
 
-	clearByZero(&ans);
-	
-	if (numComp(a, b))
+	if (isZero(a) == 0 || isZero(b) == 0)		//‚Ç‚¿‚ç‚©ˆê•û‚ª0‚Ì‚Æ‚«
 	{
-
+		clearByZero(c);
+		return 0;
 	}
+
+	clearByZero(&ans);
 
 	for (i = 0; i < KETA; i++)
 	{
@@ -488,17 +489,157 @@ int multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 		}
 	}
 
+	if (getSign(a) + getSign(b) == 0)			//‚Ç‚¿‚ç‚©ˆê•û‚ª•‰‚Ì‚Æ‚«
+	{
+		if (setSign(&ans, -1))
+		{
+			return -1;
+		}
+	}
+
 	copyNumber(&ans, c);
 
 	return 0;
 }
 
+//*****************************************************************
+//ŠT—vF‘½”{’·•Ï”a, b‚ÌÏ‚ğ‹‚ß‚Äc‚ÉŠi”[‚·‚é(ŠJ”­”Å)
+//ˆø”Fstruct NUMBER* a : æZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : æZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : Ï‚ğŠi”[‚·‚é‘½”{’·•Ï”
+//–ß’lF¬Œ÷ : 0, ¸”s : -1(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
+//•â‘«FmultipleŠÖ”‚Ì–ñ3”{‚Ì‘¬“x
+//*****************************************************************
+int Dev_multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER ans, tmp;
+	int i, j, flag = 0;
+
+	if (isZero(a) == 0 || isZero(b) == 0)		//‚Ç‚¿‚ç‚©ˆê•û‚ª0‚Ì‚Æ‚«
+	{
+		clearByZero(c);
+		return 0;
+	}
+
+	clearByZero(&ans);
+
+	for (i = KETA - 1; i >= 0; i--)		//b‚Ìã‚ÌŒ…‚©‚çs‚¤
+	{
+		clearByZero(&tmp);
+		for (j = 0; j < KETA; j++)		//ˆê’i•ª‚Ì“š‚¦‚ğo‚·
+		{
+			int e = a->n[j] * b->n[i] + flag;
+			tmp.n[j] = e % 10;
+			flag = e / 10;
+		}
+
+		if (flag)
+		{
+			return -1;
+		}
+
+		if (add(&ans, &tmp, &ans))			//‰ÁZ
+		{
+			return -1;
+		}
+
+		if (i > 0 && mulBy10(&ans, &ans))	//ÅŒã‚Ì1‰ñˆÈŠO‚Å10”{
+		{
+			return -1;
+		}
+	}
+
+	if (getSign(a) + getSign(b) == 0)			//‚Ç‚¿‚ç‚©ˆê•û‚ª•‰‚Ì‚Æ‚«
+	{
+		if (setSign(&ans, -1))
+		{
+			return -1;
+		}
+	}
+
+	copyNumber(&ans, c);
+
+	return 0;
+}
+
+///////////////////////////////////////////////////////////////////
+//ŠT—vF‘½”{’·•Ï”a, b‚Ì¤‚ğ‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ğd‚ÉŠi”[‚·‚é
+//ˆø”Fstruct NUMBER* a : æZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : æZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : ¤‚ğŠi”[‚·‚é‘½”{’·•Ï”, struct NUMBER* d : —]‚è‚ğŠi”[‚·‚é‘½”{’·•Ï”
+//–ß’lF¬Œ÷ : 0, ¸”s(0œZ) : -1(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢), ¸”s(‚»‚Ì‘¼ƒGƒ‰[)F1(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
+///////////////////////////////////////////////////////////////////
+int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
+{
+	struct NUMBER ans, rem, one;
+
+	if (isZero(b) == 0)
+	{
+		return -1;
+	}
+
+	if (isZero(a) == 0)
+	{
+		clearByZero(c);
+		clearByZero(d);
+		return 0;
+	}
+
+	if (getSign(a) == -1 || getSign(b) == -1)			//‚Ç‚¿‚ç‚©ˆê•û‚ª•‰‚Ì‚Æ‚«
+	{
+		struct NUMBER tmp_a, tmp_b;
+
+		getAbs(a, &tmp_a);
+		getAbs(b, &tmp_b);
+
+		if (divide(&tmp_a, &tmp_b, &ans, &rem))
+		{
+			return -1;
+		}
+
+		if (getSign(a) + getSign(b) == 0)	//‚Ç‚¿‚ç‚©ˆê•û‚Ì‚İ•‰‚Ì‚Æ‚«
+		{
+			if (setSign(&ans, -1))
+			{
+				return -1;
+			}
+		}
+
+		if (setSign(&rem, getSign(a)))		//—]‚è‚Ì•„†
+		{
+			return -1;
+		}
+
+		copyNumber(&ans, c);
+		copyNumber(&rem, d);
+
+		return 0;
+	}
+
+	clearByZero(&ans);
+	copyNumber(a, &rem);
+	setInt(&one, 1);
+
+	while (1)
+	{
+		if (numComp(&rem, b) == -1)//x < y)
+		{
+			break;
+		}
+		if (sub(&rem, b, &rem))
+		{
+			return 1;
+		}
+		add(&ans, &one, &ans);
+	}
+
+	copyNumber(&ans, c);
+	copyNumber(&rem, d);
+
+	return 0;
+}
 
 ///////////////////////////////////////////////////////////////////
 //                       ˆÈ‰ºƒ`ƒFƒbƒN—p                          //
 ///////////////////////////////////////////////////////////////////
 
-void RoopFunction_for_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int roop, unsigned int size, enum ViewStyle style)
+void RoopFunction_ASM(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int roop, unsigned int size, enum ViewStyle style)
 {
 	unsigned int i;
 
@@ -530,12 +671,45 @@ void RoopFunction_for_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUM
 	}
 }
 
+void RoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int roop, unsigned int size, enum ViewStyle style)
+{
+	unsigned int i;
+
+	struct NUMBER tmp_a, tmp_b, tmp_c, tmp_d;
+
+	clearByZero(&tmp_a);
+	clearByZero(&tmp_b);
+	clearByZero(&tmp_c);
+	clearByZero(&tmp_d);
+
+	for (i = 0; i < roop; i++)
+	{
+		setRnd(&tmp_a, size);
+		setRnd(&tmp_b, size);
+
+		int flag = func(&tmp_a, &tmp_b, &tmp_c, &tmp_d);
+
+		switch (style)
+		{
+		case None:
+			if (!flag)
+				break;
+		case All:
+			printf("Input1 = ");	dispNumber(&tmp_a);	putchar('\n');
+			printf("Input2 = ");	dispNumber(&tmp_b);	putchar('\n');
+		case OnlyAnswer:
+			printf("Answer = ");	dispNumber(&tmp_c);	putchar('\n');
+			break;
+		}
+	}
+}
+
 void check_setInt(struct NUMBER* a, int roop)
 {
 	int x = rand();
 	setInt(a, x);
 
-	if (check(a, x))
+	if (checkNumber(a, x))
 	{
 		printf("a = ");
 		dispNumber(a);
@@ -545,7 +719,7 @@ void check_setInt(struct NUMBER* a, int roop)
 }
 
 //a, x‚ª“™‚µ‚¯‚ê‚Î0, ˆá‚¤‚È‚ç-1
-int check(struct NUMBER* a, int x)
+int checkNumber(struct NUMBER* a, int x)
 {
 	int i;
 	int a_int = 0;
