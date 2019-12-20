@@ -41,7 +41,7 @@ int sqrt_newton(int N)
     {
         c = b;
         b = x;
-        x = (b + (N / b));
+        x = (b + (N / b)) / 2;
         if (x == b)
             break;
         if (x == c)
