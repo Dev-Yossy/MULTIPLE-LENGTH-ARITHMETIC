@@ -173,6 +173,7 @@ int divBy10(struct NUMBER* a, struct NUMBER* b)
 	return a->n[0];
 }
 
+
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数にint型の数字を格納する
 //引数：struct NUMBER* a : 格納される多倍長変数, int x : 格納したい多倍長変数
@@ -212,6 +213,7 @@ int setInt(struct NUMBER* a, int x)
 	return 0;
 }
 
+
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数の符号を設定する
 //引数：struct NUMBER* a : 設定される多倍長変数, int x : 設定する符号(+ : 1, - : -1)
@@ -227,6 +229,7 @@ int setSign(struct NUMBER* a, int s)
 
 	return 0;
 }
+
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数の符号を取得する
@@ -375,6 +378,21 @@ int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 
 ///////////////////////////////////////////////////////////////////
+//概要：多倍長変数aをインクリメントしてcに格納する
+//引数：struct NUMBER* a : インクリメントする多倍長変数, struct NUMBER* b : 結果を格納する多倍長変数
+//戻値：成功 : 0, 失敗 : -1(cの値は変化しない)
+///////////////////////////////////////////////////////////////////
+int increment(struct NUMBER* a, struct NUMBER* b)
+{
+	struct NUMBER one;
+	
+	setInt(&one, 1);
+	
+	return add(a, &one, b);
+}
+
+
+///////////////////////////////////////////////////////////////////
 //概要：多倍長変数a, bの差を求めてcに格納する
 //引数：struct NUMBER* a : 減算する多倍長変数(1), struct NUMBER* b : 減算する多倍長変数(2), struct NUMBER* c : 差を格納する多倍長変数
 //戻値：成功 : 0, 失敗 : -1(cの値は変化しない)
@@ -443,6 +461,21 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 
 ///////////////////////////////////////////////////////////////////
+//概要：多倍長変数aをデクリメントしてcに格納する
+//引数：struct NUMBER* a : デクリメントする多倍長変数, struct NUMBER* b : 結果を格納する多倍長変数
+//戻値：成功 : 0, 失敗 : -1(cの値は変化しない)
+///////////////////////////////////////////////////////////////////
+int decrement(struct NUMBER* a, struct NUMBER* b)
+{
+	struct NUMBER one;
+
+	setInt(&one, 1);
+
+	return sub(a, &one, b);
+}
+
+
+///////////////////////////////////////////////////////////////////
 //概要：多倍長変数a, bの積を求めてcに格納する
 //引数：struct NUMBER* a : 乗算する多倍長変数(1), struct NUMBER* b : 乗算する多倍長変数(2), struct NUMBER* c : 積を格納する多倍長変数
 //戻値：成功 : 0, 失敗 : -1(cの値は変化しない)
@@ -502,6 +535,7 @@ int multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 	return 0;
 }
 
+
 //*****************************************************************
 //概要：多倍長変数a, bの積を求めてcに格納する(開発版)
 //引数：struct NUMBER* a : 乗算する多倍長変数(1), struct NUMBER* b : 乗算する多倍長変数(2), struct NUMBER* c : 積を格納する多倍長変数
@@ -559,6 +593,7 @@ int Dev_multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 	return 0;
 }
+
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数a, bの商を求めてcに格納し、余りをdに格納する
@@ -633,6 +668,32 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 	copyNumber(&rem, d);
 
 	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////
+//概要：多倍長変数a, bにおいてaのb乗をcに格納する
+//引数：struct NUMBER* a : 累乗される多倍長変数, struct NUMBER* b :	累乗の上のとこの多倍長変数, struct NUMBER* c : 累乗した値を格納する多倍長変数
+//戻値：成功 : 0, 失敗 (オーバーフロー/アンダーフロー): -1(cの値は変化しない), 失敗(b<0)：-2(cの値は変化しない)
+///////////////////////////////////////////////////////////////////
+int power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	//bが負のとき
+	if (getSign(b) == -1)
+	{
+		return -2;
+	}
+
+	//0乗のとき
+	if (isZero(b))
+	{
+		 //c = 1
+	}
+
+	while (1)
+	{
+
+	}
 }
 
 ///////////////////////////////////////////////////////////////////
