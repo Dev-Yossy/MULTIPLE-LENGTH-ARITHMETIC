@@ -63,7 +63,7 @@ void setRnd(struct NUMBER* a, int k)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数をコピーする
-//引数：struct NUMBER* a : コピーする多倍長変数, struct NUMBER* b : コピーされる多倍長変数
+//引数：struct NUMBER* a : コピー元の多倍長変数, struct NUMBER* b : コピー先の多倍長変数
 //戻値：なし
 ///////////////////////////////////////////////////////////////////
 void copyNumber(struct NUMBER* a, struct NUMBER* b)
@@ -385,9 +385,9 @@ int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 int increment(struct NUMBER* a, struct NUMBER* b)
 {
 	struct NUMBER one;
-	
+
 	setInt(&one, 1);
-	
+
 	return add(a, &one, b);
 }
 
@@ -468,9 +468,7 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 int decrement(struct NUMBER* a, struct NUMBER* b)
 {
 	struct NUMBER one;
-
 	setInt(&one, 1);
-
 	return sub(a, &one, b);
 }
 
@@ -598,11 +596,11 @@ int Dev_multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数a, bの商を求めてcに格納し、余りをdに格納する
 //引数：struct NUMBER* a : 乗算する多倍長変数(1), struct NUMBER* b : 乗算する多倍長変数(2), struct NUMBER* c : 商を格納する多倍長変数, struct NUMBER* d : 余りを格納する多倍長変数
-//戻値：成功 : 0, 失敗(0除算) : -1(c, dの値は変化しない), 失敗(その他エラー)：1(c, dの値は変化しない)
+//戻値：成功 : 0, 失敗(0除算) : -1(c, dの値は変化しない), 失敗(その他エラー)：-2(c, dの値は変化しない)
 ///////////////////////////////////////////////////////////////////
 int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
 {
-	struct NUMBER ans, rem, one;
+	struct NUMBER ans, rem;
 
 	if (isZero(b) == 0)
 	{
@@ -618,27 +616,29 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 
 	if (getSign(a) == -1 || getSign(b) == -1)			//どちらか一方が負のとき
 	{
+		int num;
 		struct NUMBER tmp_a, tmp_b;
 
 		getAbs(a, &tmp_a);
 		getAbs(b, &tmp_b);
 
-		if (divide(&tmp_a, &tmp_b, &ans, &rem))
+		num = divide(&tmp_a, &tmp_b, &ans, &rem);
+		if (num < 0)
 		{
-			return -1;
+			return num;
 		}
 
 		if (getSign(a) + getSign(b) == 0)	//どちらか一方のみ負のとき
 		{
 			if (setSign(&ans, -1))
 			{
-				return -1;
+				return -2;
 			}
 		}
 
 		if (setSign(&rem, getSign(a)))		//余りの符号
 		{
-			return -1;
+			return -2;
 		}
 
 		copyNumber(&ans, c);
@@ -649,7 +649,6 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 
 	clearByZero(&ans);
 	copyNumber(a, &rem);
-	setInt(&one, 1);
 
 	while (1)
 	{
@@ -659,9 +658,9 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 		}
 		if (sub(&rem, b, &rem))
 		{
-			return 1;
+			return -2;
 		}
-		add(&ans, &one, &ans);
+		increment(&ans, &ans);
 	}
 
 	copyNumber(&ans, c);
@@ -678,23 +677,109 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 ///////////////////////////////////////////////////////////////////
 int power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
+	struct NUMBER ans;
+	struct NUMBER tmp;
+
+	clearByZero(&ans);
+	clearByZero(&tmp);
+
 	//bが負のとき
 	if (getSign(b) == -1)
 	{
 		return -2;
 	}
 
-	//0乗のとき
-	if (isZero(b))
+	//b = 0のとき
+	if (isZero(b) == 0)
 	{
-		 //c = 1
+		//c = 1
+		if (increment(&ans, &ans))
+		{
+			return -1;
+		}
+		copyNumber(&ans, c);
 	}
+
+	//累乗
+	copyNumber(a, &ans);
+	copyNumber(b, &tmp);
+	while (1)
+	{
+		if (decrement(&tmp, &tmp))
+		{
+			return -1;
+		}
+
+		if (isZero(&tmp) == 0)
+		{
+			break;
+		}
+
+		//処理
+		if (multiple(&ans, a, &ans))
+		{
+			return -1;
+		}
+	}
+	copyNumber(&ans, c);
+
+	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////
+//概要：多倍長変数aにおいてaの階乗(a!)をbに格納する
+//引数：struct NUMBER* a : 階乗する多倍長変数, struct NUMBER* b : 階乗した値を格納する多倍長変数
+//戻値：成功 : 0, 失敗(オーバーフロー/アンダーフロー) : -1(bの値は変化しない), 失敗(a<0) : -2(bの値は変化しない)
+///////////////////////////////////////////////////////////////////
+int factorial(struct NUMBER* a, struct NUMBER* b)
+{
+	struct NUMBER ans;
+	struct NUMBER tmp;
+
+	clearByZero(&ans);
+	clearByZero(&tmp);
+
+	//a<0
+	if (getSign(a) < 0)
+	{
+		return -2;
+	}
+
+	//a=0
+	if (isZero(a) == 0)
+	{
+		increment(&ans, &ans);
+		copyNumber(&ans, b);
+		return 0;
+	}
+
+	copyNumber(a, &tmp);
+	copyNumber(a, &ans);
 
 	while (1)
 	{
+		if (decrement(&tmp, &tmp))
+		{
+			return -1;
+		}
 
+		if (isZero(&tmp) == 0)
+		{
+			break;
+		}
+
+		if (multiple(&ans, &tmp, &ans))
+		{
+			return -1;
+		}
 	}
+
+	copyNumber(&ans, b);
+
+	return 0;
 }
+
 
 ///////////////////////////////////////////////////////////////////
 //                       以下チェック用                          //
@@ -798,7 +883,7 @@ int checkNumber(struct NUMBER* a, int x)
 	{
 		a_int *= 10;
 		a_int += a->n[max - 1 - i];
-		
+
 	}
 
 	if (a->sign == -1)

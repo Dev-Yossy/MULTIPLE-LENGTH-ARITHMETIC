@@ -60,10 +60,14 @@ int getSign(struct NUMBER*);
 int numComp(struct NUMBER*, struct NUMBER*);
 void swap(struct NUMBER*, struct NUMBER*);
 int add(struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int increment(struct NUMBER*, struct NUMBER*);
 int sub(struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int decrement(struct NUMBER*, struct NUMBER*);
 int multiple(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int Dev_multiple(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int divide(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int power(struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int factorial(struct NUMBER*, struct NUMBER*);
 //------------------------------------------------------------------------------------
 
 
@@ -74,7 +78,9 @@ int divide(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
 //////////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------------
 
-void RoopFunction_Cul(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int, unsigned int, enum ViewStyle);
+void RoopFunction_ASM(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int, unsigned int, enum ViewStyle);
+void RoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int, unsigned int, enum ViewStyle);
+
 void check_setInt(struct NUMBER* a, int roop);
 int checkNumber(struct NUMBER* a, int x);
 
