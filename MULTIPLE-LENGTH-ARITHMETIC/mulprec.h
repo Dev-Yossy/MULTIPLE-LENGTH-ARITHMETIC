@@ -66,6 +66,7 @@ int decrement(struct NUMBER*, struct NUMBER*);
 int multiple(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int Dev_multiple(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int divide(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int divide_U10(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int power(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int factorial(struct NUMBER*, struct NUMBER*);
 //------------------------------------------------------------------------------------
