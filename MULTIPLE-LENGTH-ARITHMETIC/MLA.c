@@ -16,17 +16,17 @@ int main(void)
 	clearByZero(&e);
 
 
-	//â¡éZ********************************************************
+	//â¡éZÉãÅ[Év**************************************************
 	if (0)
 	{
-		int roop_add = 0;//100000;
+		int roop_add = 100000;
 		printf("roop function \'add\' %d times.\n", roop_add);
 		printf("--- Start ---\n");
 		RoopFunction_ASM(add, roop_add, 10, None);
 		printf("--- Done ! ---\n");
 	}
 
-	//èÊéZ********************************************************
+	//èÊéZÉãÅ[Év**************************************************
 	if (0)
 	{
 		int roop_mul = 100000;
@@ -36,7 +36,7 @@ int main(void)
 		printf("--- Done ! ---\n");
 	}
 
-	//èÊéZDev*****************************************************
+	//èÊéZDevÉãÅ[Év***********************************************
 	if (0)
 	{
 		int roop_dev_mul = 100000;
@@ -46,7 +46,7 @@ int main(void)
 		printf("--- Done ! ---\n");
 	}
 
-	//èúéZ********************************************************
+	//èúéZÉãÅ[Év**************************************************
 	if (0)
 	{
 		int roop_div = 100000;
@@ -57,7 +57,7 @@ int main(void)
 	}
 
 	//èÊéZ********************************************************
-	if (1)
+	if (0)
 	{
 		clearByZero(&a);
 		clearByZero(&b);
@@ -95,7 +95,7 @@ int main(void)
 	}
 
 	//èôéZ********************************************************
-	if (1)
+	if (0)
 	{
 		clearByZero(&a);
 		clearByZero(&b);
@@ -104,8 +104,8 @@ int main(void)
 
 		//ê≥èÌìÆçÏ
 		printf("\nèúéZ-ê≥èÌìÆçÏ----------\n");
-		setInt(&a, 1000);
-		setInt(&b, 33);
+		setInt(&a, -1000);
+		setInt(&b, 3);
 		if (errorCode = divide(&a, &b, &c, &d))
 		{
 			printf("func > divide - failed.  code > %d\n", errorCode);
@@ -136,7 +136,7 @@ int main(void)
 	}
 
 	//ó›èÊ********************************************************
-	if (1)
+	if (0)
 	{
 		clearByZero(&a);
 		clearByZero(&b);
@@ -188,7 +188,7 @@ int main(void)
 	}
 
 	//äKèÊ********************************************************
-	if (1)
+	if (0)
 	{
 		clearByZero(&a);
 		clearByZero(&b);
@@ -232,6 +232,8 @@ int main(void)
 			printf("b = a! = ");	dispNumber(&b);	putchar('\n');
 		}
 	}
+
+
 
 	return 0;
 }
