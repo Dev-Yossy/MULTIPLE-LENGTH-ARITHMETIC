@@ -139,7 +139,10 @@ int mulBy10(struct NUMBER* a, struct NUMBER* b)
 	}
 
 	tmp.n[0] = 0;
-	setSign(&tmp, getSign(a));
+	if (setSign(&tmp, getSign(a)))
+	{
+		return -1;
+	}
 
 	copyNumber(&tmp, b);
 
@@ -166,7 +169,10 @@ int divBy10(struct NUMBER* a, struct NUMBER* b)
 	}
 
 	tmp.n[KETA - 1] = 0;
-	setSign(&tmp, getSign(a));
+	if (setSign(&tmp, getSign(a)))
+	{
+		return -1;
+	}
 
 	copyNumber(&tmp, b);
 
@@ -198,11 +204,18 @@ int setInt(struct NUMBER* a, int x)
 
 	if (x < 0)
 	{
-		x = ~x + 1/*‚í‚ñ‚¿‚á‚ñ*-1‚Å‚àƒRƒ“ƒpƒCƒ‰‚Åˆ—‚³‚ê‚é*/, setSign(a, -1);
+		x = ~x + 1/*‚í‚ñ‚¿‚á‚ñ*-1‚Å‚àƒRƒ“ƒpƒCƒ‰‚Åˆ—‚³‚ê‚é*/;
+		if (setSign(a, -1))
+		{
+			return -1;
+		}
 	}
 	else
 	{
-		setSign(a, 1);
+		if (setSign(a, 1))
+		{
+			return -1;
+		}
 	}
 
 	while (x > 0)
@@ -341,7 +354,10 @@ int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 		struct NUMBER tmp_a, tmp_b;
 		getAbs(a, &tmp_a), getAbs(b, &tmp_b);
 		flag = add(&tmp_a, &tmp_b, &tmp);
-		setSign(&tmp, -1);
+		if (setSign(&tmp, -1))
+		{
+			return -1;
+		}
 	}
 	else if (getSign(a) < 0 && getSign(b) > 0)	//a < 0, b > 0 --- a + b = b - |a| 
 	{
@@ -386,7 +402,10 @@ int increment(struct NUMBER* a, struct NUMBER* b)
 {
 	struct NUMBER one;
 
-	setInt(&one, 1);
+	if (setInt(&one, 1))
+	{
+		return -1;
+	}
 
 	return add(a, &one, b);
 }
@@ -417,7 +436,10 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 		struct NUMBER tmp_a;
 		getAbs(a, &tmp_a);
 		flag = add(&tmp_a, b, &tmp);
-		setSign(&tmp, -1);
+		if (setSign(&tmp, -1))
+		{
+			return -1;
+		}
 	}
 	else if (getSign(a) > 0 && getSign(b) < 0)	//a > 0, b < 0 --- a - b = a + |b|
 	{
@@ -429,7 +451,10 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 	else if (numComp(a, b) < 0)			//a < b
 	{
 		flag = sub(b, a, &tmp);
-		setSign(&tmp, -1);
+		if (setSign(&tmp, -1))
+		{
+			return -1;
+		}
 	}
 	else
 	{
@@ -468,7 +493,10 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 int decrement(struct NUMBER* a, struct NUMBER* b)
 {
 	struct NUMBER one;
-	setInt(&one, 1);
+	if (setInt(&one, 1))
+	{
+		return -1;
+	}
 	return sub(a, &one, b);
 }
 
@@ -595,7 +623,7 @@ int Dev_multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 ///////////////////////////////////////////////////////////////////
 //ŠT—vF‘½”{’·•Ï”a, b‚Ì¤‚ð‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ðd‚ÉŠi”[‚·‚é
-//ˆø”Fstruct NUMBER* a : æŽZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : æŽZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : ¤‚ðŠi”[‚·‚é‘½”{’·•Ï”, struct NUMBER* d : —]‚è‚ðŠi”[‚·‚é‘½”{’·•Ï”
+//ˆø”Fstruct NUMBER* a : œŽZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : œŽZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : ¤‚ðŠi”[‚·‚é‘½”{’·•Ï”, struct NUMBER* d : —]‚è‚ðŠi”[‚·‚é‘½”{’·•Ï”
 //–ß’lF¬Œ÷ : 0, Ž¸”s(0œŽZ) : -1(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢), Ž¸”s(‚»‚Ì‘¼ƒGƒ‰[)F-2(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 ///////////////////////////////////////////////////////////////////
 int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
@@ -647,6 +675,14 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 		return 0;
 	}
 
+	//1Œ…”»•Ê—p
+	int flg;
+	if ((flg = divide_U10(a, b, c, d)) != -2)	//b‚ª1Œ…‚Å‚È‚¢ê‡ˆÈŠO‚ÌŽž‚ÌœŽZ
+	{
+		return flg;
+	}
+	
+	//‚±‚±‚©‚ç++‚ÌœŽZ
 	clearByZero(&ans);
 	copyNumber(a, &rem);
 
@@ -660,11 +696,61 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 		{
 			return -2;
 		}
-		increment(&ans, &ans);
+		if (increment(&ans, &ans))
+		{
+			return -2;
+		}
 	}
 
 	copyNumber(&ans, c);
 	copyNumber(&rem, d);
+
+	return 0;
+}
+
+
+//*****************************************************************
+//ŠT—vF‘½”{’·•Ï”a, b(b‚Í1Œ…)‚Ì¤‚ð‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ðd‚ÉŠi”[‚·‚é
+//ˆø”Fstruct NUMBER* a : œŽZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : œŽZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : ¤‚ðŠi”[‚·‚é‘½”{’·•Ï”, struct NUMBER* d : —]‚è‚ðŠi”[‚·‚é‘½”{’·•Ï”
+//–ß’lF¬Œ÷ : 0, Ž¸”s(0œŽZ) : -1(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢), Ž¸”s(b‚ª1Œ…‚Å‚È‚¢)F-2(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢), Ž¸”s(‚»‚Ì‘¼ƒGƒ‰[)F-3(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
+//*****************************************************************
+int divide_U10(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
+{
+	printf("divide_U10-----------------------------------------------\n");
+	struct NUMBER ans;
+	int h = 0;
+	int i = KETA - 1;
+
+	//—]‚è : rem
+	int rem = divBy10(b, &ans);
+
+	if (b == 0)				//0œŽZ
+	{
+		return -1;
+	}
+
+	if (isZero(&ans))		//b‚ª1Œ…‚Å‚È‚¢‚È‚ç
+	{
+		return -2;
+	}
+
+	clearByZero(&ans);
+
+	//b‚ª1Œ…‚È‚ç
+	//b ‚Í rem ‚Æ“™‚µ‚¢(struct NUMBER -> int)
+
+	for (i = KETA - 1; i >= 0; i--)
+	{
+		int t = h * 10 + a->n[i];
+		h = t % rem;
+		ans.n[i] = (t - h) / rem;
+	}
+
+	copyNumber(&ans, c);
+	if (setInt(d, h))		//—]‚è
+	{
+		return -1;
+	}
 
 	return 0;
 }
@@ -779,6 +865,13 @@ int factorial(struct NUMBER* a, struct NUMBER* b)
 
 	return 0;
 }
+
+
+///////////////////////////////////////////////////////////////////
+//                       ˆÈ‰ºŽžŠÔŒv‘ª—p                          //
+///////////////////////////////////////////////////////////////////
+
+
 
 
 ///////////////////////////////////////////////////////////////////
