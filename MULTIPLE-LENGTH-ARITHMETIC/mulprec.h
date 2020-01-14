@@ -4,6 +4,17 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#define USE_RANDOM 0
+#define USE_SYSTIME 1
+#if USE_RANDOM && !(defined _DEBUG)
+
+#else
+#define srandom(m) srand(m)
+#define random() rand()
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -11,7 +22,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------------
 
-#define KETA 20
+#define KETA 80
 
 //------------------------------------------------------------------------------------
 
@@ -67,22 +78,56 @@ int multiple(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int Dev_multiple(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int divide(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int divide_U10(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int Dev_divide(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int Dev_divide_X(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int power(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int factorial(struct NUMBER*, struct NUMBER*);
+int gcd(struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int lcm(struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int Dev_lcm(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 //------------------------------------------------------------------------------------
 
 
 
+//////////////////////////////////////////////////////////////////////////////////////
+//                                以下時間計測用                                     //
+//////////////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef _DEBUG 
+
+#include <sys/time.h>
+
+void timeStart(void);
+double timeStop(void);
+void clockStart(void);
+double clockStop(void);
+
+
+#else
+
+#include <time.h>
+time_t timeCount;
+clock_t clockCount;
+void timeStart(void);
+double timeStop(void);
+void clockStart(void);
+double clockStop(void);
+
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////////////
-//                                以下チェック用                                    //
+//                                以下チェック用                                     //
 //////////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------------
 
 void RoopFunction_ASM(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int, unsigned int, enum ViewStyle);
 void RoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int, unsigned int, enum ViewStyle);
-
-void check_setInt(struct NUMBER* a, int roop);
+double FastRoopFunction_ASM(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int roop, unsigned int size);
+double FastRoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int roop, unsigned int size);
+void check_setInt(struct NUMBER* a);
 int checkNumber(struct NUMBER* a, int x);
 
 //------------------------------------------------------------------------------------
