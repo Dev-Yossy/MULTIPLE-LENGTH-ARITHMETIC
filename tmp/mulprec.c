@@ -1,7 +1,5 @@
 #include "mulprec.h"
-#include <stdio.h>
-#include <time.h>
-#include <stdlib.h>
+
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数を0に初期化する
@@ -139,7 +137,10 @@ int mulBy10(struct NUMBER* a, struct NUMBER* b)
 	}
 
 	tmp.n[0] = 0;
-	setSign(&tmp, getSign(a));
+	if (setSign(&tmp, getSign(a)))
+	{
+		return -1;
+	}
 
 	copyNumber(&tmp, b);
 
@@ -166,7 +167,10 @@ int divBy10(struct NUMBER* a, struct NUMBER* b)
 	}
 
 	tmp.n[KETA - 1] = 0;
-	setSign(&tmp, getSign(a));
+	if (setSign(&tmp, getSign(a)))
+	{
+		return -1;
+	}
 
 	copyNumber(&tmp, b);
 
@@ -198,11 +202,18 @@ int setInt(struct NUMBER* a, int x)
 
 	if (x < 0)
 	{
-		x = ~x + 1/*わんちゃん*-1でもコンパイラで処理される*/, setSign(a, -1);
+		x = ~x + 1/*わんちゃん*-1でもコンパイラで処理される*/;
+		if (setSign(a, -1))
+		{
+			return -1;
+		}
 	}
 	else
 	{
-		setSign(a, 1);
+		if (setSign(a, 1))
+		{
+			return -1;
+		}
 	}
 
 	while (x > 0)
@@ -341,7 +352,10 @@ int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 		struct NUMBER tmp_a, tmp_b;
 		getAbs(a, &tmp_a), getAbs(b, &tmp_b);
 		flag = add(&tmp_a, &tmp_b, &tmp);
-		setSign(&tmp, -1);
+		if (setSign(&tmp, -1))
+		{
+			return -1;
+		}
 	}
 	else if (getSign(a) < 0 && getSign(b) > 0)	//a < 0, b > 0 --- a + b = b - |a| 
 	{
@@ -385,9 +399,12 @@ int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 int increment(struct NUMBER* a, struct NUMBER* b)
 {
 	struct NUMBER one;
-	
-	setInt(&one, 1);
-	
+
+	if (setInt(&one, 1))
+	{
+		return -1;
+	}
+
 	return add(a, &one, b);
 }
 
@@ -417,7 +434,10 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 		struct NUMBER tmp_a;
 		getAbs(a, &tmp_a);
 		flag = add(&tmp_a, b, &tmp);
-		setSign(&tmp, -1);
+		if (setSign(&tmp, -1))
+		{
+			return -1;
+		}
 	}
 	else if (getSign(a) > 0 && getSign(b) < 0)	//a > 0, b < 0 --- a - b = a + |b|
 	{
@@ -429,7 +449,10 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 	else if (numComp(a, b) < 0)			//a < b
 	{
 		flag = sub(b, a, &tmp);
-		setSign(&tmp, -1);
+		if (setSign(&tmp, -1))
+		{
+			return -1;
+		}
 	}
 	else
 	{
@@ -468,7 +491,10 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 int decrement(struct NUMBER* a, struct NUMBER* b)
 {
 	struct NUMBER one;
-	setInt(&one, 1);
+	if (setInt(&one, 1))
+	{
+		return -1;
+	}
 	return sub(a, &one, b);
 }
 
@@ -483,7 +509,7 @@ int multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 	struct NUMBER ans, tmp;
 	int i, j, k, flag = 0;
 
-	if (isZero(a) == 0 || isZero(b) == 0)		//どちらか一方が0のとき
+	if (isZero(a) == 0 || isZero(b) == 0)		//すくなくともどちらか一方が0のとき
 	{
 		clearByZero(c);
 		return 0;
@@ -520,7 +546,7 @@ int multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 		}
 	}
 
-	if (getSign(a) + getSign(b) == 0)			//どちらか一方が負のとき
+	if (getSign(a) + getSign(b) == 0)			//どちらか一方のみ負のとき
 	{
 		if (setSign(&ans, -1))
 		{
@@ -538,7 +564,7 @@ int multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 //概要：多倍長変数a, bの積を求めてcに格納する(開発版)
 //引数：struct NUMBER* a : 乗算する多倍長変数(1), struct NUMBER* b : 乗算する多倍長変数(2), struct NUMBER* c : 積を格納する多倍長変数
 //戻値：成功 : 0, 失敗 : -1(cの値は変化しない)
-//補足：multiple関数の約3倍の速度
+//補足：multiple関数の約3倍(KETA=10), 約16.7倍(KETA=100)の速度
 //*****************************************************************
 int Dev_multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
@@ -595,8 +621,8 @@ int Dev_multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数a, bの商を求めてcに格納し、余りをdに格納する
-//引数：struct NUMBER* a : 乗算する多倍長変数(1), struct NUMBER* b : 乗算する多倍長変数(2), struct NUMBER* c : 商を格納する多倍長変数, struct NUMBER* d : 余りを格納する多倍長変数
-//戻値：成功 : 0, 失敗(0除算) : -1(c, dの値は変化しない), 失敗(その他エラー)：1(c, dの値は変化しない)
+//引数：struct NUMBER* a : 除算する多倍長変数(1), struct NUMBER* b : 除算する多倍長変数(2), struct NUMBER* c : 商を格納する多倍長変数, struct NUMBER* d : 余りを格納する多倍長変数
+//戻値：成功 : 0, 失敗(0除算) : -1(c, dの値は変化しない), 失敗(その他エラー)：-2(c, dの値は変化しない)
 ///////////////////////////////////////////////////////////////////
 int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
 {
@@ -616,27 +642,29 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 
 	if (getSign(a) == -1 || getSign(b) == -1)			//どちらか一方が負のとき
 	{
+		int num;
 		struct NUMBER tmp_a, tmp_b;
 
 		getAbs(a, &tmp_a);
 		getAbs(b, &tmp_b);
 
-		if (divide(&tmp_a, &tmp_b, &ans, &rem))
+		num = divide(&tmp_a, &tmp_b, &ans, &rem);
+		if (num < 0)
 		{
-			return -1;
+			return num;
 		}
 
 		if (getSign(a) + getSign(b) == 0)	//どちらか一方のみ負のとき
 		{
 			if (setSign(&ans, -1))
 			{
-				return -1;
+				return -2;
 			}
 		}
 
 		if (setSign(&rem, getSign(a)))		//余りの符号
 		{
-			return -1;
+			return -2;
 		}
 
 		copyNumber(&ans, c);
@@ -645,6 +673,14 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 		return 0;
 	}
 
+	//1桁判別用
+	int flg;
+	if ((flg = divide_U10(a, b, c, d)) != -2)	//bが1桁でない場合以外の時の除算
+	{
+		return flg;
+	}
+	
+	//ここから++の除算
 	clearByZero(&ans);
 	copyNumber(a, &rem);
 
@@ -656,9 +692,12 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 		}
 		if (sub(&rem, b, &rem))
 		{
-			return 1;
+			return -2;
 		}
-		increment(&ans, &ans);
+		if (increment(&ans, &ans))
+		{
+			return -2;
+		}
 	}
 
 	copyNumber(&ans, c);
@@ -668,6 +707,124 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 }
 
 
+//*****************************************************************
+//概要：多倍長変数a, b(bは1桁)の商を求めてcに格納し、余りをdに格納する
+//引数：struct NUMBER* a : 除算する多倍長変数(1), struct NUMBER* b : 除算する多倍長変数(2), struct NUMBER* c : 商を格納する多倍長変数, struct NUMBER* d : 余りを格納する多倍長変数
+//戻値：成功 : 0, 失敗(0除算) : -1(c, dの値は変化しない), 失敗(bが1桁でない)：-2(c, dの値は変化しない), 失敗(その他エラー)：-3(c, dの値は変化しない)
+//*****************************************************************
+int divide_U10(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
+{
+	struct NUMBER ans;
+	int h = 0;
+	int i = KETA - 1;
+
+	//余り : rem
+	int rem = divBy10(b, &ans);
+
+	if (b == 0)				//0除算
+	{
+		return -1;
+	}
+
+	if (isZero(&ans))		//bが1桁でないなら
+	{
+		return -2;
+	}
+
+	clearByZero(&ans);
+
+	//bが1桁なら
+	//b は rem と等しい(struct NUMBER -> int)
+
+	for (i = KETA - 1; i >= 0; i--)
+	{
+		int t = h * 10 + a->n[i];
+		h = t % rem;
+		ans.n[i] = (t - h) / rem;
+	}
+
+	copyNumber(&ans, c);
+	if (setInt(d, h))		//余り
+	{
+		return -3;
+	}
+
+	return 0;
+}
+
+
+//*****************************************************************
+//概要：多倍長変数a, bの商を求めてcに格納し、余りをdに格納する
+//引数：struct NUMBER* a : 除算する多倍長変数(1), struct NUMBER* b : 除算する多倍長変数(2), struct NUMBER* c : 商を格納する多倍長変数, struct NUMBER* d : 余りを格納する多倍長変数
+//戻値：成功 : 0, 失敗(0除算) : -1(c, dの値は変化しない), 失敗(その他エラー)：-2(c, dの値は変化しない)
+//*****************************************************************
+int Dev_divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
+{
+	struct NUMBER ans;
+	struct NUMBER tmp_a, tmp_b, tmp_d, tmp_e;
+	//手順1
+	clearByZero(&ans);
+	clearByZero(&tmp_a);
+	clearByZero(&tmp_b);
+	clearByZero(&tmp_d);
+	clearByZero(&tmp_e);
+
+	copyNumber(a, &tmp_a);
+	copyNumber(b, &tmp_b);
+
+	//手順2
+	while (numComp(&tmp_a, &tmp_b) != -1)
+	{
+		//手順3
+		copyNumber(&tmp_b, &tmp_d);
+		//手順4
+		setInt(&tmp_e, 1);
+		//手順5
+
+		//dを10倍していくと最上位bitが非0になってもなおa>dとなることがあるため, さらに10倍されてoverflowしてしまう
+		//解決策1...常に余裕のある桁数を用意しておく
+		//解決策2...最上位bitの値が非0になったときに特別な処理を描く
+		while (1)
+		{
+			printf("tmp_d = ");		dispNumber(&tmp_d);	putchar('\n');
+
+			if (mulBy10(&tmp_d, &tmp_d))
+			{
+				return -21;
+			}
+
+			if (numComp(&tmp_a, &tmp_d) != 1)
+			{
+				printf("tmp_d = ");		dispNumber(&tmp_d);	putchar('\n');
+				divBy10(&tmp_d, &tmp_d);	//これだとKETA-1まで埋まるような数字の時に不具合が起きる可能性がある
+				break;
+			}
+			
+			//手順6
+			if (mulBy10(&tmp_e, &tmp_e))
+			{
+				return -23;
+			}
+		}
+		
+		//手順7
+		sub(&tmp_a, &tmp_d, &tmp_a);
+
+		if (add(&ans, &tmp_e, &ans))
+		{
+			return -24;
+		}
+	}
+	
+	//手順10
+	copyNumber(&tmp_a, d);
+	copyNumber(&ans, c);
+
+	return 0;
+}
+
+
+
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数a, bにおいてaのb乗をcに格納する
 //引数：struct NUMBER* a : 累乗される多倍長変数, struct NUMBER* b :	累乗の上のとこの多倍長変数, struct NUMBER* c : 累乗した値を格納する多倍長変数
@@ -675,44 +832,90 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 ///////////////////////////////////////////////////////////////////
 int power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
+	struct NUMBER ans;
+	struct NUMBER tmp;
+
+	clearByZero(&ans);
+	clearByZero(&tmp);
+
 	//bが負のとき
 	if (getSign(b) == -1)
 	{
 		return -2;
 	}
 
-	//0乗のとき
-	if (isZero(b))
+	//b = 0のとき
+	if (isZero(b) == 0)
 	{
-		 //c = 1
+		//c = 1
+		if (increment(&ans, &ans))
+		{
+			return -1;
+		}
+		copyNumber(&ans, c);
 	}
 
-	//while (1)
+	//累乗
+	copyNumber(a, &ans);
+	copyNumber(b, &tmp);
+	while (1)
 	{
+		if (decrement(&tmp, &tmp))
+		{
+			return -1;
+		}
 
+		if (isZero(&tmp) == 0)
+		{
+			break;
+		}
+
+		//処理
+		if (multiple(&ans, a, &ans))
+		{
+			return -1;
+		}
 	}
+	copyNumber(&ans, c);
+
+	return 0;
 }
 
 
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数aにおいてaの階乗(a!)をbに格納する
 //引数：struct NUMBER* a : 階乗する多倍長変数, struct NUMBER* b : 階乗した値を格納する多倍長変数
-//戻値：成功 : 0, 失敗 : -1(bの値は変化しない)
+//戻値：成功 : 0, 失敗(オーバーフロー/アンダーフロー) : -1(bの値は変化しない), 失敗(a<0) : -2(bの値は変化しない)
 ///////////////////////////////////////////////////////////////////
-int factorial(struct NUMBER *a, struct NUMBER *b)
+int factorial(struct NUMBER* a, struct NUMBER* b)
 {
 	struct NUMBER ans;
 	struct NUMBER tmp;
+
+	clearByZero(&ans);
+	clearByZero(&tmp);
+
+	//a<0
+	if (getSign(a) < 0)
+	{
+		return -2;
+	}
+
+	//a=0
+	if (isZero(a) == 0)
+	{
+		increment(&ans, &ans);
+		copyNumber(&ans, b);
+		return 0;
+	}
 
 	copyNumber(a, &tmp);
 	copyNumber(a, &ans);
 
 	while (1)
 	{
-		printf("hummmm...\n");
 		if (decrement(&tmp, &tmp))
 		{
-			printf("decrement failed .\n");
 			return -1;
 		}
 
@@ -723,7 +926,6 @@ int factorial(struct NUMBER *a, struct NUMBER *b)
 
 		if (multiple(&ans, &tmp, &ans))
 		{
-			printf("overflow .\n");
 			return -1;
 		}
 	}
@@ -731,6 +933,171 @@ int factorial(struct NUMBER *a, struct NUMBER *b)
 	copyNumber(&ans, b);
 
 	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////
+//概要：多倍長変数a, bにおいてaとbの最大公約数をcに格納する
+//引数：struct NUMBER* a : 最大公約数を求める多倍長変数, struct NUMBER* b : 最大公約数を求める多倍長変数, struct NUMBER* c : 最大公約数を格納する多倍長変数
+//戻値：成功 : 0, 失敗 : -1(cの値は変化しない)
+///////////////////////////////////////////////////////////////////
+int gcd(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER num1, num2, rem;
+
+	clearByZero(&num1);
+	clearByZero(&num2);
+	clearByZero(&rem);
+
+	getAbs(a, &num1);
+	getAbs(b, &num2);
+	
+	if (numComp(&num1, &num2) == -1)	//a < b なら
+	{
+		getAbs(b, &num1);
+		getAbs(a, &num2);
+	}
+	
+	if(isZero(&num2) == 0)
+	{
+		copyNumber(&num1, c);
+		return 0;
+	}
+
+	while (1)
+	{
+		if (divide(&num1, &num2, &num1/*不要*/, &rem))
+		{
+			return -1;
+		}
+		copyNumber(&num2, &num1);
+		copyNumber(&rem, &num2);
+		
+		if (isZero(&rem) == 0)
+		{
+			break;
+		}
+	}
+
+	//ここにきたとき除数はnum1になる
+	copyNumber(&num1, c);
+
+	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////
+//概要：多倍長変数a, bにおいてaとbの最小公倍数をcに格納する
+//引数：struct NUMBER* a : 最小公倍数を求める多倍長変数, struct NUMBER* b : 最小公倍数を求める多倍長変数, struct NUMBER* c : 最小公倍数を格納する多倍長変数
+//戻値：成功 : 0, 失敗 : -1(cの値は変化しない)
+///////////////////////////////////////////////////////////////////
+int lcm(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER ans, num1, num2;
+	clearByZero(&ans);
+	clearByZero(&num1);
+	clearByZero(&num2);
+
+	getAbs(a, &num1);
+	getAbs(b, &num2);
+
+	if (multiple(&num1, &num2, &ans))
+	{
+		return -1;
+	}
+
+	//ans = |a|*|b|
+
+	if (gcd(a, b, &num1))		//gcdは符号に影響しないためa,bをそのまま用いている
+	{
+		return -1;
+	}
+
+	//num1 = gcd(a,b)
+
+	if (divide(&ans, &num1, &ans, &num1/*不要*/))
+	{
+		return -1;
+	}
+
+	copyNumber(&ans, c);
+
+	return 0;
+}
+
+
+//*****************************************************************
+//概要：多倍長変数a, bにおいてaとbの最小公倍数をcに格納する(開発版)
+//引数：struct NUMBER* a : 最小公倍数を求める多倍長変数, struct NUMBER* b : 最小公倍数を求める多倍長変数, struct NUMBER* c : 最小公倍数を格納する多倍長変数
+//戻値：成功 : 0, 失敗 : -1(cの値は変化しない)
+//補足：|a|*|b|/gcd(a,b) -> |a|/gcd(a,b)*|b| に変更
+//*****************************************************************
+int Dev_lcm(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER ans, num1, num2;
+	clearByZero(&ans);
+	clearByZero(&num1);
+	clearByZero(&num2);
+
+	getAbs(a, &num1);
+	getAbs(b, &num2);
+
+	if (gcd(a, b, &ans))		//gcdは符号に影響しないためa,bをそのまま用いている
+	{
+		return -1;
+	}
+
+	//ans = gcd(a,b)
+
+	if (divide(&num1, &ans, &ans, &num1/*不要*/))
+	{
+		return -1;
+	}
+
+	//ans = |a| / gcd(a,b)
+	//num2 = |b|
+
+	if (multiple(&ans, &num2, &ans))
+	{
+		return -1;
+	}
+
+	copyNumber(&ans, c);
+
+	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////
+//                        以下時間計測用                          //
+///////////////////////////////////////////////////////////////////
+
+void timeStart(void)
+{
+	timeCount = time(NULL);
+}
+
+//s
+unsigned int timeStop(void)
+{
+	time_t stop = time(NULL);
+	time_t diff = stop - timeCount;
+	timeCount = 0;
+	return (unsigned int)diff;
+}
+
+void clockStart(void)
+{
+	clockCount = clock();
+}
+
+//ms
+unsigned int clockStop(void)
+{
+	clock_t stop = clock();
+	clock_t diff = stop - clockCount;
+	clockCount = 0;
+	return (unsigned int)(diff * 1000 / CLOCKS_PER_SEC);
 }
 
 
@@ -788,6 +1155,16 @@ void RoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*, 
 
 		int flag = func(&tmp_a, &tmp_b, &tmp_c, &tmp_d);
 
+		//確認
+		if (1)
+		{
+			struct NUMBER check;
+			clearByZero(&check);
+			multiple(&tmp_b, &tmp_c, &check);
+			add(&check, &tmp_d, &check);
+			flag = (numComp(&check, &tmp_a) == 0 && flag == 0) ? 0 : -1;
+		}
+
 		switch (style)
 		{
 		case None:
@@ -798,12 +1175,13 @@ void RoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*, 
 			printf("Input2 = ");	dispNumber(&tmp_b);	putchar('\n');
 		case OnlyAnswer:
 			printf("Answer = ");	dispNumber(&tmp_c);	putchar('\n');
+			printf("Surplus = ");	dispNumber(&tmp_d);	putchar('\n');
 			break;
 		}
 	}
 }
 
-void check_setInt(struct NUMBER* a, int roop)
+void check_setInt(struct NUMBER* a)
 {
 	int x = rand();
 	setInt(a, x);
@@ -836,7 +1214,7 @@ int checkNumber(struct NUMBER* a, int x)
 	{
 		a_int *= 10;
 		a_int += a->n[max - 1 - i];
-		
+
 	}
 
 	if (a->sign == -1)
