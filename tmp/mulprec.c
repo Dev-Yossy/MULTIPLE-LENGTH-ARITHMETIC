@@ -36,7 +36,7 @@ void dispNumber(struct NUMBER* a)
 
 	for (i = KETA - 1; i >= 0; i--)
 	{
-		printf(" %2d", a->n[i]);        //数字確認用
+		printf("%2d", a->n[i]);        //数字確認用
 	}
 }
 
@@ -52,10 +52,10 @@ void setRnd(struct NUMBER* a, int k)
 	//数字
 	for (i = 0; i < k; i++)
 	{
-		a->n[i] = rand() % 10;
+		a->n[i] = random() % 10;
 	}
 	//符号
-	setSign(a, (rand() % 2 == 1) ? 1 : -1);
+	setSign(a, (random() % 2 == 1) ? 1 : -1);
 }
 
 
@@ -96,11 +96,11 @@ void getAbs(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 int isZero(struct NUMBER* a)
 {
-	if (getSign(a) == -1)
+	/* if (getSign(a) == -1)
 	{
 		return -1;
 	}
-
+ */			//-0が紛れ込んだ時の対策
 	int i;
 	for (i = 0; i < KETA; i++)
 	{
@@ -294,8 +294,7 @@ int numComp(struct NUMBER* a, struct NUMBER* b)
 			return -1;
 		}
 	}
-
-	if (sign_a == -1 && sign_b == -1)
+	else //if (sign_a == -1 && sign_b == -1)
 	{
 		int i = KETA;
 		while (--i >= 0)
@@ -620,7 +619,7 @@ int Dev_multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 
 ///////////////////////////////////////////////////////////////////
-//概要：多倍長変数a, bの商を求めてcに格納し、余りをdに格納する
+//概要：多倍長変数a, bの商を求めてcに格納し、余りをdに格納する。この関数ではcに商を格納した後、dに剰余を格納する。
 //引数：struct NUMBER* a : 除算する多倍長変数(1), struct NUMBER* b : 除算する多倍長変数(2), struct NUMBER* c : 商を格納する多倍長変数, struct NUMBER* d : 余りを格納する多倍長変数
 //戻値：成功 : 0, 失敗(0除算) : -1(c, dの値は変化しない), 失敗(その他エラー)：-2(c, dの値は変化しない)
 ///////////////////////////////////////////////////////////////////
@@ -632,15 +631,13 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 	{
 		return -1;
 	}
-
 	if (isZero(a) == 0)
 	{
 		clearByZero(c);
 		clearByZero(d);
 		return 0;
 	}
-
-	if (getSign(a) == -1 || getSign(b) == -1)			//どちらか一方が負のとき
+	if (getSign(a) == -1 || getSign(b) == -1)			//少なくともどちらか一方が負のとき
 	{
 		int num;
 		struct NUMBER tmp_a, tmp_b;
@@ -653,7 +650,6 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 		{
 			return num;
 		}
-
 		if (getSign(a) + getSign(b) == 0)	//どちらか一方のみ負のとき
 		{
 			if (setSign(&ans, -1))
@@ -661,7 +657,6 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 				return -2;
 			}
 		}
-
 		if (setSign(&rem, getSign(a)))		//余りの符号
 		{
 			return -2;
@@ -672,21 +667,19 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 
 		return 0;
 	}
-
 	//1桁判別用
 	int flg;
 	if ((flg = divide_U10(a, b, c, d)) != -2)	//bが1桁でない場合以外の時の除算
 	{
 		return flg;
 	}
-	
 	//ここから++の除算
 	clearByZero(&ans);
 	copyNumber(a, &rem);
 
 	while (1)
 	{
-		if (numComp(&rem, b) == -1)//x < y)
+		if (numComp(&rem, b) < 0)//x < y
 		{
 			break;
 		}
@@ -708,7 +701,7 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 
 
 //*****************************************************************
-//概要：多倍長変数a, b(bは1桁)の商を求めてcに格納し、余りをdに格納する
+//概要：多倍長変数a, b(bは1桁)の商を求めてcに格納し、余りをdに格納する。この関数ではcに商を格納した後、dに剰余を格納する。(開発版：安定)
 //引数：struct NUMBER* a : 除算する多倍長変数(1), struct NUMBER* b : 除算する多倍長変数(2), struct NUMBER* c : 商を格納する多倍長変数, struct NUMBER* d : 余りを格納する多倍長変数
 //戻値：成功 : 0, 失敗(0除算) : -1(c, dの値は変化しない), 失敗(bが1桁でない)：-2(c, dの値は変化しない), 失敗(その他エラー)：-3(c, dの値は変化しない)
 //*****************************************************************
@@ -717,6 +710,8 @@ int divide_U10(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 	struct NUMBER ans;
 	int h = 0;
 	int i = KETA - 1;
+	
+	clearByZero(&ans);
 
 	//余り : rem
 	int rem = divBy10(b, &ans);
@@ -754,11 +749,130 @@ int divide_U10(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 
 
 //*****************************************************************
-//概要：多倍長変数a, bの商を求めてcに格納し、余りをdに格納する
+//概要：多倍長変数a, bの商を求めてcに格納し、余りをdに格納する。この関数ではcに商を格納した後、dに剰余を格納する。(開発版：安定)
 //引数：struct NUMBER* a : 除算する多倍長変数(1), struct NUMBER* b : 除算する多倍長変数(2), struct NUMBER* c : 商を格納する多倍長変数, struct NUMBER* d : 余りを格納する多倍長変数
 //戻値：成功 : 0, 失敗(0除算) : -1(c, dの値は変化しない), 失敗(その他エラー)：-2(c, dの値は変化しない)
 //*****************************************************************
 int Dev_divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
+{
+	struct NUMBER ans;
+	struct NUMBER tmp_a, tmp_b, tmp_d, tmp_e;
+	struct NUMBER tmp_check;		//確認用変数
+
+	clearByZero(&ans);
+	clearByZero(&tmp_a);
+	clearByZero(&tmp_b);
+	clearByZero(&tmp_d);
+	clearByZero(&tmp_e);
+	clearByZero(&tmp_check);
+
+	//0除算
+	if (isZero(b) == 0)
+	{
+		return -1;
+	}
+	//分子が0のとき
+	if (isZero(a) == 0)
+	{
+		clearByZero(c);
+		clearByZero(d);
+		return 0;
+	}
+	//マイナス処理
+	//少なくともどちらか一方が負のとき
+	if (getSign(a) == -1 || getSign(b) == -1)
+	{
+		getAbs(a, &tmp_a);
+		getAbs(b, &tmp_b);
+
+		int num = Dev_divide(&tmp_a, &tmp_b, &ans, &tmp_d);
+		if (num < 0)
+		{
+			return num;
+		}
+		//どちらか一方のみ負のとき
+		if (getSign(a) + getSign(b) == 0)
+		{
+			if (setSign(&ans, -1))
+			{
+				return -2;
+			}
+		}
+		//余りの符号 (余りの符号は常に割られる数の符号に依存する)
+		if (setSign(&tmp_d, getSign(a)))
+		{
+			return -2;
+		}
+
+		copyNumber(&ans, c);
+		copyNumber(&tmp_d, d);
+
+		return 0;
+	}
+
+	//ここから++の除算
+
+	copyNumber(a, &tmp_a);
+	copyNumber(b, &tmp_b);
+
+	while (numComp(&tmp_a, &tmp_b) != -1)	//a < b でないなら
+	{
+		copyNumber(&tmp_b, &tmp_d);
+
+		if (setInt(&tmp_e, 1))
+		{
+			return -2;
+		}
+
+		while (1)
+		{
+			int rem = divBy10(&tmp_a, &tmp_check);
+
+			int flg = numComp(&tmp_check, &tmp_d);
+			if (flg == -1)	//tmp_dをmulBy10するとtmp_aを超える
+			{
+				break;
+			}
+			else if (flg == 0 && rem < tmp_d.n[0])	//等しいときは余りremによって決まる. rem>0ならtmp_a > tmp_d*10
+			{										//d.n[0]との比較は1回目のため, 2回目以降はd.n[0]は0なので常にfalse
+				break;
+			}
+
+			//tmp_a >= tmp_d * 10のとき
+
+			if (mulBy10(&tmp_d, &tmp_d))
+			{
+				return -2;
+			}
+
+			if (mulBy10(&tmp_e, &tmp_e))
+			{
+				return -2;
+			}
+		}
+
+		sub(&tmp_a, &tmp_d, &tmp_a);
+
+		if (add(&ans, &tmp_e, &ans))
+		{
+			return -2;
+		}
+	}
+
+	copyNumber(&tmp_a, d);
+	copyNumber(&ans, c);
+
+	return 0;
+}
+
+
+//*****************************************************************
+//概要：多倍長変数a, bの商を求めてcに格納し、余りをdに格納する。この関数ではcに商を格納した後、dに剰余を格納する。(開発版：不安定)
+//引数：struct NUMBER* a : 除算する多倍長変数(1), struct NUMBER* b : 除算する多倍長変数(2), struct NUMBER* c : 商を格納する多倍長変数, struct NUMBER* d : 余りを格納する多倍長変数
+//戻値：成功 : 0, 失敗(0除算) : -1(c, dの値は変化しない), 失敗(その他エラー)：-2(c, dの値は変化しない)
+//補足：最上位bitまで値が入っている状態だとoverflowする場合がある(例：KETA=5,a=99999,b=99998)
+//*****************************************************************
+int Dev_divide_X(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
 {
 	struct NUMBER ans;
 	struct NUMBER tmp_a, tmp_b, tmp_d, tmp_e;
@@ -769,6 +883,50 @@ int Dev_divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 	clearByZero(&tmp_d);
 	clearByZero(&tmp_e);
 
+	//0除算
+	if (isZero(b) == 0)
+	{
+		return -1;
+	}
+	//分子が0のとき
+	if (isZero(a) == 0)
+	{
+		clearByZero(c);
+		clearByZero(d);
+		return 0;
+	}
+	//マイナス処理
+	//少なくともどちらか一方が負のとき
+	if (getSign(a) == -1 || getSign(b) == -1)
+	{
+		getAbs(a, &tmp_a);
+		getAbs(b, &tmp_b);
+
+		int num = Dev_divide_X(&tmp_a, &tmp_b, &ans, &tmp_d);
+		if (num < 0)
+		{
+			return num;
+		}
+		//どちらか一方のみ負のとき
+		if (getSign(a) + getSign(b) == 0)
+		{
+			if (setSign(&ans, -1))
+			{
+				return -2;
+			}
+		}
+		//余りの符号 (余りの符号は常に割られる数の符号に依存する)
+		if (setSign(&tmp_d, getSign(a)))
+		{
+			return -2;
+		}
+
+		copyNumber(&ans, c);
+		copyNumber(&tmp_d, d);
+
+		return 0;
+	}
+
 	copyNumber(a, &tmp_a);
 	copyNumber(b, &tmp_b);
 
@@ -778,7 +936,10 @@ int Dev_divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 		//手順3
 		copyNumber(&tmp_b, &tmp_d);
 		//手順4
-		setInt(&tmp_e, 1);
+		if (setInt(&tmp_e, 1))
+		{
+			return -2;
+		}
 		//手順5
 
 		//dを10倍していくと最上位bitが非0になってもなおa>dとなることがあるため, さらに10倍されてoverflowしてしまう
@@ -786,43 +947,39 @@ int Dev_divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 		//解決策2...最上位bitの値が非0になったときに特別な処理を描く
 		while (1)
 		{
-			printf("tmp_d = ");		dispNumber(&tmp_d);	putchar('\n');
-
 			if (mulBy10(&tmp_d, &tmp_d))
 			{
-				return -21;
+				return -2;
 			}
 
 			if (numComp(&tmp_a, &tmp_d) != 1)
 			{
-				printf("tmp_d = ");		dispNumber(&tmp_d);	putchar('\n');
 				divBy10(&tmp_d, &tmp_d);	//これだとKETA-1まで埋まるような数字の時に不具合が起きる可能性がある
 				break;
 			}
-			
+
 			//手順6
 			if (mulBy10(&tmp_e, &tmp_e))
 			{
-				return -23;
+				return -2;
 			}
 		}
-		
+
 		//手順7
 		sub(&tmp_a, &tmp_d, &tmp_a);
 
 		if (add(&ans, &tmp_e, &ans))
 		{
-			return -24;
+			return -2;
 		}
 	}
-	
+
 	//手順10
 	copyNumber(&tmp_a, d);
 	copyNumber(&ans, c);
 
 	return 0;
 }
-
 
 
 ///////////////////////////////////////////////////////////////////
@@ -853,6 +1010,8 @@ int power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 			return -1;
 		}
 		copyNumber(&ans, c);
+
+		return 0;
 	}
 
 	//累乗
@@ -877,6 +1036,114 @@ int power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 		}
 	}
 	copyNumber(&ans, c);
+
+	return 0;
+}
+
+
+//*****************************************************************
+//概要：多倍長変数a, bにおいてaのb乗をcに格納する(開発版)
+//引数：struct NUMBER* a : 累乗される多倍長変数, struct NUMBER* b :	累乗の上のとこの多倍長変数, struct NUMBER* c : 累乗した値を格納する多倍長変数
+//戻値：成功 : 0, 失敗 (オーバーフロー/アンダーフロー): -1(cの値は変化しない), 失敗(b<0)：-2(cの値は変化しない)
+//*****************************************************************
+int Dev_power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER ans;
+	struct NUMBER tmp;
+
+	clearByZero(&ans);
+	clearByZero(&tmp);
+
+	//bが負のとき
+	if (getSign(b) == -1)
+	{
+		return -2;
+	}
+
+	//b = 0のとき
+	if (isZero(b) == 0)
+	{
+		//c = 1
+		if (increment(&ans, &ans))
+		{
+			return -1;
+		}
+	}
+	else
+	{
+		if (Cul_power(a, b, &ans))
+		{
+			return -1;
+		}
+	}
+	
+	copyNumber(&ans, c);
+
+	return 0;
+}
+
+int Cul_power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER tmp, div;
+	if (setInt(&tmp, 1))
+	//tmp = 1
+	{
+		return -1;
+	}
+
+	if (isZero(b) == 0)			// b = 0 ?
+	{
+		copyNumber(&tmp, c);
+		return 0;
+	}
+
+	if (numComp(b, &tmp) == 0)	//b = 1 ?
+	{
+		copyNumber(a, c);
+		return 0;
+	}
+
+	if (increment(&tmp, &tmp))	// tmp = 1 -> 2
+	{
+		return -1;
+	}
+
+	if (divide(b, &tmp, &div, &tmp))	//tmp = 2 -> 剰余, div = b / 2
+	{
+		return -1;
+	}
+
+	if (isZero(&tmp) == 0)	//偶数の時
+	{
+		if (multiple(a, a, &tmp))	//a^2
+		{
+			return -1;
+		}
+
+		if (Cul_power(&tmp, &div, &tmp))
+		{
+			return -1;
+		}
+	}
+	else
+	{
+		if (decrement(b, &tmp))
+		{
+			return -1;
+		}
+
+		if (Cul_power(a, &tmp, &tmp))
+		{
+			return -1;
+		}
+
+		if (multiple(a, &tmp, &tmp))
+		{
+			return -1;
+		}
+	}
+	
+	copyNumber(&tmp, c);
 
 	return 0;
 }
@@ -949,16 +1216,20 @@ int gcd(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 	clearByZero(&num2);
 	clearByZero(&rem);
 
-	getAbs(a, &num1);
-	getAbs(b, &num2);
 	
 	if (numComp(&num1, &num2) == -1)	//a < b なら
 	{
 		getAbs(b, &num1);
 		getAbs(a, &num2);
 	}
+	else
+	{
+		getAbs(a, &num1);
+		getAbs(b, &num2);
+	}
 	
-	if(isZero(&num2) == 0)
+
+	if (isZero(&num2) == 0)
 	{
 		copyNumber(&num1, c);
 		return 0;
@@ -972,7 +1243,7 @@ int gcd(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 		}
 		copyNumber(&num2, &num1);
 		copyNumber(&rem, &num2);
-		
+
 		if (isZero(&rem) == 0)
 		{
 			break;
@@ -1069,8 +1340,109 @@ int Dev_lcm(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 
 ///////////////////////////////////////////////////////////////////
+//概要：多倍長変数aにおいてaが素数か判別する
+//引数：struct NUMBER* a : 素数か判別する多倍長変数
+//戻値：素数である : 1, 素数でないまたは失敗 : 0
+///////////////////////////////////////////////////////////////////
+int isPrime(struct NUMBER* a)
+{
+	struct NUMBER num, rem, tmp, two, tmp2;
+	clearByZero(&num);
+	clearByZero(&rem);
+	clearByZero(&tmp);
+	clearByZero(&two);
+	clearByZero(&tmp2);
+
+	if(setInt(&two, 2))
+	{
+		return 0;
+	}
+
+	if (setInt(&num, 1))
+	{
+		return 0;
+	}
+	copyNumber(&num, &tmp);		//setInt(&tmp, 1);
+
+	if (numComp(a, &tmp) <= 0)	//a <= 1
+	{
+		return 0;
+	}
+
+	if(Dev_divide(a, &two, &tmp, &rem))	//2で割る  tmp = a/2 ... これの範囲内でループする
+	{
+		return 0;
+	}
+
+	if (numComp(&tmp, &num/*1*/) == 0)	//a=2の時の処理
+	{
+		return 1;
+	}
+	
+
+	while(1)
+	{
+		if (isZero(&rem) == 0)	//割り切れたとき
+		{
+			break;
+		}
+
+		if (add(&num, &two, &num))
+		{
+			break;
+		}
+
+		if (numComp(&num, &tmp) > 0)
+		{
+			return 1;
+		}
+
+		if (Dev_divide(a, &num, &tmp2, &rem))
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////
 //                        以下時間計測用                          //
 ///////////////////////////////////////////////////////////////////
+
+#ifndef _DEBUG
+
+static struct timeval tv;
+static double tstart, tend;
+
+void timeStart(void)
+{
+	clockStart();
+}
+double timeStop(void)
+{
+	return clockStop();
+}
+
+void clockStart(void)
+{
+	gettimeofday(&tv, NULL);
+	tstart = (double)tv.tv_sec + (double)tv.tv_usec * 1.e-6;
+}
+
+double clockStop(void)
+{
+	gettimeofday(&tv, NULL);
+	tend = (double)tv.tv_sec + (double)tv.tv_usec * 1.e-6;
+	return (tend - tstart) * 1000;
+}
+
+#else
 
 void timeStart(void)
 {
@@ -1078,7 +1450,7 @@ void timeStart(void)
 }
 
 //s
-unsigned int timeStop(void)
+double timeStop(void)
 {
 	time_t stop = time(NULL);
 	time_t diff = stop - timeCount;
@@ -1086,19 +1458,22 @@ unsigned int timeStop(void)
 	return (unsigned int)diff;
 }
 
+
 void clockStart(void)
 {
 	clockCount = clock();
 }
 
 //ms
-unsigned int clockStop(void)
+double clockStop(void)
 {
 	clock_t stop = clock();
 	clock_t diff = stop - clockCount;
 	clockCount = 0;
-	return (unsigned int)(diff * 1000 / CLOCKS_PER_SEC);
+	return ((double)diff * 1000 / CLOCKS_PER_SEC);
 }
+
+#endif
 
 
 ///////////////////////////////////////////////////////////////////
@@ -1136,6 +1511,7 @@ void RoopFunction_ASM(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*
 		}
 	}
 }
+
 
 void RoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int roop, unsigned int size, enum ViewStyle style)
 {
@@ -1181,9 +1557,80 @@ void RoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*, 
 	}
 }
 
+
+double FastRoopFunction_ASM(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int roop, unsigned int size)
+{
+	unsigned int i = 0, tmp = 0;
+	double flag = 0;
+	struct NUMBER tmp_a, tmp_b, tmp_c;
+
+	
+
+	while (i++ < roop)
+	{
+		int i;
+		clearByZero(&tmp_a);
+		clearByZero(&tmp_b);
+		clearByZero(&tmp_c);
+		setRnd(&tmp_a, size);
+		setRnd(&tmp_b, 1);//(random() % size) + 1);
+		setSign(&tmp_b, 1);
+		clockStart();
+		i = func(&tmp_a, &tmp_b, &tmp_c);
+		flag += clockStop();
+		tmp += ((i != 0 && i != -1) ? 1 : 0);
+		if (i)
+		{
+			printf("-----------------------------------------------------------------------------\n");
+			printf("a = ");	dispNumber(&tmp_a);	putchar('\n');
+			printf("b = ");	dispNumber(&tmp_b);	putchar('\n');
+			printf("c = ");	dispNumber(&tmp_c);	putchar('\n');
+		}
+	}
+	printf("ErrorNumber: %d\n", tmp);
+
+	return flag;
+}
+
+
+double FastRoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*), unsigned int roop, unsigned int size)
+{
+	unsigned int i = 0, tmp = 0;
+	double flag = 0;
+	struct NUMBER tmp_a, tmp_b, tmp_c, tmp_d;
+
+	while(i++ < roop)
+	{
+		int i;
+		clearByZero(&tmp_a);
+		clearByZero(&tmp_b);
+		clearByZero(&tmp_c);
+		clearByZero(&tmp_d);
+		setRnd(&tmp_a, KETA);
+		setRnd(&tmp_b, (random() % KETA) + 1);
+		clockStart();
+		i = Dev_divide(&tmp_a, &tmp_b, &tmp_c, &tmp_d);
+		flag += clockStop();
+		tmp += ((i != 0 && i != -1) ? 1 : 0);
+		if (i)
+		{
+			printf("-----------------------------------------------------------------------------\n");
+			printf("a = ");	dispNumber(&tmp_a);	putchar('\n');
+			printf("b = ");	dispNumber(&tmp_b);	putchar('\n');
+			printf("c = ");	dispNumber(&tmp_c);	putchar('\n');
+			printf("d = ");	dispNumber(&tmp_d);	putchar('\n');
+		}
+	}
+	printf("ErrorNumber: %d\n", tmp);
+
+	return flag;
+}
+
+
+
 void check_setInt(struct NUMBER* a)
 {
-	int x = rand();
+	int x = random();
 	setInt(a, x);
 
 	if (checkNumber(a, x))
