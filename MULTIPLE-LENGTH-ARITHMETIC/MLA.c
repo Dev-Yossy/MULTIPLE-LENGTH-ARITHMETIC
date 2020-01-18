@@ -13,7 +13,6 @@ int main(void)
 	printf("Standard Mode ---\n");
 #endif
 
-
 	srandom((unsigned)time(NULL));
 
 	int errorCode;
@@ -25,7 +24,7 @@ int main(void)
 	clearByZero(&e);
 
 	int RoopSetting_Roop = 10000;
-	int RoopSetting_RndLen = 3;
+	int RoopSetting_RndLen = 10;
 
 	//â¡éZÉãÅ[Év**************************************************
 	if (0)
@@ -39,7 +38,20 @@ int main(void)
 		printf("--- Done ! ---\n");
 		printf("--- time = %f [ms]\n", tmp);
 	}
-
+	
+	//å∏éZÉãÅ[Év**************************************************
+	if (0)
+	{
+		int roop_sub = RoopSetting_Roop;
+		printf("roop function \'sub\' %d times.\n", roop_sub);
+		printf("--- Start ---\n");
+		clockStart();
+		RoopFunction_ASM(sub, roop_sub, RoopSetting_RndLen, None);
+		double tmp = clockStop();
+		printf("--- Done ! ---\n");
+		printf("--- time = %f [ms]\n", tmp);
+	}
+	
 	//èÊéZÉãÅ[Év**************************************************
 	if (0)
 	{
@@ -83,7 +95,7 @@ int main(void)
 	}
 
 	//èúéZDevÉãÅ[Év***********************************************
-	if (1)
+	if (0)
 	{
 		int roop_dev_div = RoopSetting_Roop;
 		printf("roop function \'Dev_div\' %d times.\n", roop_dev_div);
@@ -110,6 +122,28 @@ int main(void)
 		unsigned int tmp = clockStop();
 		*/
 		double tmp = FastRoopFunction_D(Dev_divide_X, roop_devX_div, RoopSetting_RndLen);
+		printf("--- Done ! ---\n");
+		printf("--- time = %f [ms]\n", tmp);
+	}
+
+	//ó›èÊÉãÅ[Év**************************************************
+	if (0)
+	{
+		int roop_power = RoopSetting_Roop;
+		printf("roop function \'power\' %d times.\n", roop_power);
+		printf("--- Start ---\n");
+		double tmp = FastRoopFunction_ASM(power, roop_power, 3);
+		printf("--- Done ! ---\n");
+		printf("--- time = %f [ms]\n", tmp);
+	}
+
+	//ó›èÊDevÉãÅ[Év***********************************************
+	if (0)
+	{
+		int roop_Dev_power = RoopSetting_Roop;
+		printf("roop function \'Dev_power\' %d times.\n", roop_Dev_power);
+		printf("--- Start ---\n");
+		double tmp = FastRoopFunction_ASM(Dev_power, roop_Dev_power, 3);
 		printf("--- Done ! ---\n");
 		printf("--- time = %f [ms]\n", tmp);
 	}
@@ -164,10 +198,27 @@ int main(void)
 
 		//ê≥èÌìÆçÏ
 		printf("\nèúéZ-ê≥èÌìÆçÏ----------\n");
-		setInt(&a, 999999999);
-		setInt(&b, 999999998);
-		a.n[9] = 9;
-		b.n[9] = 9;
+		//setInt(&a, 999999999);
+		//141421356173205082236067931417
+		int tmp;
+		setInt(&a, 141421356);
+		for (tmp = 0; tmp < 9; tmp++)
+			mulBy10(&a, &a);
+		setInt(&c, 173205082);
+		add(&a, &c, &a);
+		for (tmp = 0; tmp < 9; tmp++)
+			mulBy10(&a, &a);
+		setInt(&c, 236067931);
+		add(&a, &c, &a);
+		for (tmp = 0; tmp < 3; tmp++)
+			mulBy10(&a, &a);
+		setInt(&c, 419);
+		add(&a, &c, &a);
+
+
+		setInt(&b, 7);
+		//a.n[9] = 9;
+		//b.n[9] = 9;
 		errorCode = Dev_divide(&a, &b, &c, &d);
 		if (errorCode)
 		{
@@ -253,6 +304,61 @@ int main(void)
 			printf("c = a^b = ");	dispNumber(&c);	putchar('\n');
 		}
 	}
+	
+	//Devó›èÊ*****************************************************
+	if (0)
+	{
+		clearByZero(&a);
+		clearByZero(&b);
+		clearByZero(&c);
+
+		//ê≥èÌìÆçÏ
+		printf("\nó›èÊ-ê≥èÌìÆçÏ----------\n");
+		setInt(&a, 3);
+		setInt(&b, 5);
+		errorCode = Dev_power(&a, &b, &c);
+		if (errorCode)
+		{
+			printf("func > power - failed.  code > %d\n", errorCode);
+		}
+		else
+		{
+			printf("a       = ");	dispNumber(&a);	putchar('\n');
+			printf("b       = ");	dispNumber(&b);	putchar('\n');
+			printf("c = a^b = ");	dispNumber(&c);	putchar('\n');
+		}
+
+		//b < 0
+		printf("\nó›èÊ-ÉGÉâÅ[(b < 0)----------\n");
+		setInt(&b, -3);
+		errorCode = Dev_power(&a, &b, &c);
+		if (errorCode)
+		{
+			printf("func > power - failed.  code > %d\n", errorCode);
+		}
+		else
+		{
+			printf("a       = ");	dispNumber(&a);	putchar('\n');
+			printf("b       = ");	dispNumber(&b);	putchar('\n');
+			printf("c = a^b = ");	dispNumber(&c);	putchar('\n');
+		}
+
+		//overflow
+		printf("\nó›èÊ-ÉGÉâÅ[(overflow)----------\n");
+		setInt(&a, 1000);
+		setInt(&b, 10);
+		errorCode = Dev_power(&a, &b, &c);
+		if (errorCode)
+		{
+			printf("func > power - failed.  code > %d\n", errorCode);
+		}
+		else
+		{
+			printf("a       = ");	dispNumber(&a);	putchar('\n');
+			printf("b       = ");	dispNumber(&b);	putchar('\n');
+			printf("c = a^b = ");	dispNumber(&c);	putchar('\n');
+		}
+	}
 
 	//äKèÊ********************************************************
 	if (0)
@@ -275,7 +381,7 @@ int main(void)
 		}
 
 		//overflow
-		printf("\nó›èÊ - ÉGÉâÅ[(overflow)----------\n");
+		printf("\näKèÊ-ÉGÉâÅ[(overflow)----------\n");
 		setInt(&a, 1000);
 		errorCode = factorial(&a, &b);
 		if (errorCode)
@@ -289,7 +395,7 @@ int main(void)
 		}
 
 		//a<0
-		printf("\nó›èÊ - ÉGÉâÅ[(a<0)----------\n");
+		printf("\näKèÊ-ÉGÉâÅ[(a<0)----------\n");
 		setInt(&a, -3);
 		errorCode = factorial(&a, &b);
 		if (errorCode)
@@ -303,7 +409,7 @@ int main(void)
 		}
 	}
 
-	//ç≈ëÂåˆñÒêî***************************************************
+	//ç≈ëÂåˆñÒêî**************************************************
 	if (0)
 	{
 		clearByZero(&a);
@@ -327,7 +433,7 @@ int main(void)
 		}
 	}
 
-	//ç≈è¨åˆî{êî***************************************************
+	//ç≈è¨åˆî{êî**************************************************
 	if (0)
 	{
 		clearByZero(&a);
@@ -336,9 +442,13 @@ int main(void)
 
 		//ê≥èÌìÆçÏ
 		printf("\nç≈è¨åˆî{êî-ê≥èÌìÆçÏ----------\n");
-		setInt(&a, 98765);
-		setInt(&b, 43210);
+		//setInt(&a, 98765);
+		//setInt(&b, 43210);
+		setInt(&a, -987654321);
+		setInt(&b, 0);
 		errorCode = lcm(&a, &b, &c);
+		//errorCode = Dev_lcm(&a, &b, &c);
+
 		if (errorCode)
 		{
 			printf("func > lcm - failed.  code > %d\n", errorCode);
@@ -348,6 +458,89 @@ int main(void)
 			printf("a            = ");	dispNumber(&a);	putchar('\n');
 			printf("b            = ");	dispNumber(&b);	putchar('\n');
 			printf("c = lcm(a,b) = ");	dispNumber(&c);	putchar('\n');
+		}
+	}
+
+	//ëfêî********************************************************
+	if (0)
+	{
+		clearByZero(&a);
+
+		//ê≥èÌìÆçÏ
+		printf("\nëfêî-ê≥èÌìÆçÏ----------\n");
+
+		int tmp = 192837437;
+		while (1)
+		{
+			/*
+			setInt(&a, tmp);
+			if (isPrime(&a))				printf("%d,", tmp);
+			if (tmp % 100 == 0)				putchar('\n');
+			if (tmp >= 10000)				break;
+			tmp++;
+			*/
+
+			//141421356173205082236067931419
+			setInt(&a, 141421356);
+			for (tmp = 0; tmp < 9; tmp++)
+				mulBy10(&a, &a);
+			setInt(&c, 173205082);
+			add(&a, &c, &a);
+			for (tmp = 0; tmp < 9; tmp++)
+				mulBy10(&a, &a);
+			setInt(&c, 236067931);
+			add(&a, &c, &a);
+			for (tmp = 0; tmp < 3; tmp++)
+				mulBy10(&a, &a);
+			setInt(&c, 419);
+			add(&a, &c, &a);
+
+
+			printf("a = ");	dispNumber(&a);	putchar('\n');
+
+			errorCode = isPrime(&a);
+			printf("ëfêîîªíË --> %s\n", errorCode ? "ëfêî" : "ëfêîÇ≈Ç»Ç¢");
+			break;
+		}
+	}
+
+	//ïΩï˚ç™******************************************************
+	if (0)
+	{
+		clearByZero(&a);
+		clearByZero(&b);
+
+		//ê≥èÌìÆçÏ
+		printf("\nïΩï˚ç™-ê≥èÌìÆçÏ----------\n");
+		setInt(&a, 264196);
+
+		errorCode = squareroot(&a, &b);
+
+		if (errorCode)
+		{
+			printf("func > squareroot - failed.  code > %d\n", errorCode);
+		}
+		else
+		{
+			printf("a           = ");	dispNumber(&a);	putchar('\n');
+			printf("b = sqrt(a) = ");	dispNumber(&b);	putchar('\n');
+		}
+		
+
+
+		//error
+		printf("\nïΩï˚ç™-error----------\n");
+		setInt(&a, -10);
+		errorCode = squareroot(&a, &b);
+
+		if (errorCode)
+		{
+			printf("func > squareroot - failed.  code > %d\n", errorCode);
+		}
+		else
+		{
+			printf("a           = ");	dispNumber(&a);	putchar('\n');
+			printf("b = sqrt(a) = ");	dispNumber(&b);	putchar('\n');
 		}
 	}
 
