@@ -1,8 +1,6 @@
 #pragma once
 
-#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 //------------------------------------------------------------------------------------
 
-#define KETA 80
+#define KETA 40
 
 //------------------------------------------------------------------------------------
 
@@ -81,10 +79,14 @@ int divide_U10(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int Dev_divide(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int Dev_divide_X(struct NUMBER*, struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int power(struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int Dev_power(struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int Cul_power(struct NUMBER*, struct NUMBER*, struct NUMBER*);	//Dev_power—p
 int factorial(struct NUMBER*, struct NUMBER*);
 int gcd(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int lcm(struct NUMBER*, struct NUMBER*, struct NUMBER*);
 int Dev_lcm(struct NUMBER*, struct NUMBER*, struct NUMBER*);
+int isPrime(struct NUMBER*);
+int squareroot(struct NUMBER*, struct NUMBER*);
 //------------------------------------------------------------------------------------
 
 

@@ -36,7 +36,7 @@ void dispNumber(struct NUMBER* a)
 
 	for (i = KETA - 1; i >= 0; i--)
 	{
-		printf(" %2d", a->n[i]);        //”šŠm”F—p
+		printf("%2d", a->n[i]);        //”šŠm”F—p
 	}
 }
 
@@ -96,11 +96,11 @@ void getAbs(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 int isZero(struct NUMBER* a)
 {
-	if (getSign(a) == -1)
+	/* if (getSign(a) == -1)
 	{
 		return -1;
 	}
-
+ */			//-0‚ª•´‚ê‚ñ‚¾‚Ì‘Îô
 	int i;
 	for (i = 0; i < KETA; i++)
 	{
@@ -294,8 +294,7 @@ int numComp(struct NUMBER* a, struct NUMBER* b)
 			return -1;
 		}
 	}
-
-	if (sign_a == -1 && sign_b == -1)
+	else //if (sign_a == -1 && sign_b == -1)
 	{
 		int i = KETA;
 		while (--i >= 0)
@@ -620,7 +619,7 @@ int Dev_multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 
 ///////////////////////////////////////////////////////////////////
-//ŠT—vF‘½”{’·•Ï”a, b‚Ì¤‚ğ‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ğd‚ÉŠi”[‚·‚é
+//ŠT—vF‘½”{’·•Ï”a, b‚Ì¤‚ğ‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ğd‚ÉŠi”[‚·‚éB
 //ˆø”Fstruct NUMBER* a : œZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : œZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : ¤‚ğŠi”[‚·‚é‘½”{’·•Ï”, struct NUMBER* d : —]‚è‚ğŠi”[‚·‚é‘½”{’·•Ï”
 //–ß’lF¬Œ÷ : 0, ¸”s(0œZ) : -1(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢), ¸”s(‚»‚Ì‘¼ƒGƒ‰[)F-2(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 ///////////////////////////////////////////////////////////////////
@@ -632,15 +631,13 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 	{
 		return -1;
 	}
-
 	if (isZero(a) == 0)
 	{
 		clearByZero(c);
 		clearByZero(d);
 		return 0;
 	}
-
-	if (getSign(a) == -1 || getSign(b) == -1)			//‚Ç‚¿‚ç‚©ˆê•û‚ª•‰‚Ì‚Æ‚«
+	if (getSign(a) == -1 || getSign(b) == -1)			//­‚È‚­‚Æ‚à‚Ç‚¿‚ç‚©ˆê•û‚ª•‰‚Ì‚Æ‚«
 	{
 		int num;
 		struct NUMBER tmp_a, tmp_b;
@@ -653,7 +650,6 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 		{
 			return num;
 		}
-
 		if (getSign(a) + getSign(b) == 0)	//‚Ç‚¿‚ç‚©ˆê•û‚Ì‚İ•‰‚Ì‚Æ‚«
 		{
 			if (setSign(&ans, -1))
@@ -661,7 +657,6 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 				return -2;
 			}
 		}
-
 		if (setSign(&rem, getSign(a)))		//—]‚è‚Ì•„†
 		{
 			return -2;
@@ -672,21 +667,19 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 
 		return 0;
 	}
-
 	//1Œ…”»•Ê—p
 	int flg;
 	if ((flg = divide_U10(a, b, c, d)) != -2)	//b‚ª1Œ…‚Å‚È‚¢ê‡ˆÈŠO‚Ì‚ÌœZ
 	{
 		return flg;
 	}
-
 	//‚±‚±‚©‚ç++‚ÌœZ
 	clearByZero(&ans);
 	copyNumber(a, &rem);
 
 	while (1)
 	{
-		if (numComp(&rem, b) == -1)//x < y)
+		if (numComp(&rem, b) < 0)//x < y
 		{
 			break;
 		}
@@ -708,7 +701,7 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 
 
 //*****************************************************************
-//ŠT—vF‘½”{’·•Ï”a, b(b‚Í1Œ…)‚Ì¤‚ğ‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ğd‚ÉŠi”[‚·‚é
+//ŠT—vF‘½”{’·•Ï”a, b(b‚Í1Œ…)‚Ì¤‚ğ‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ğd‚ÉŠi”[‚·‚éB(ŠJ”­”ÅFˆÀ’è)
 //ˆø”Fstruct NUMBER* a : œZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : œZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : ¤‚ğŠi”[‚·‚é‘½”{’·•Ï”, struct NUMBER* d : —]‚è‚ğŠi”[‚·‚é‘½”{’·•Ï”
 //–ß’lF¬Œ÷ : 0, ¸”s(0œZ) : -1(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢), ¸”s(b‚ª1Œ…‚Å‚È‚¢)F-2(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢), ¸”s(‚»‚Ì‘¼ƒGƒ‰[)F-3(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 //*****************************************************************
@@ -717,6 +710,8 @@ int divide_U10(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 	struct NUMBER ans;
 	int h = 0;
 	int i = KETA - 1;
+
+	clearByZero(&ans);
 
 	//—]‚è : rem
 	int rem = divBy10(b, &ans);
@@ -754,7 +749,7 @@ int divide_U10(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 
 
 //*****************************************************************
-//ŠT—vF‘½”{’·•Ï”a, b‚Ì¤‚ğ‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ğd‚ÉŠi”[‚·‚é(ŠJ”­”ÅF•sˆÀ’è)
+//ŠT—vF‘½”{’·•Ï”a, b‚Ì¤‚ğ‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ğd‚ÉŠi”[‚·‚éB(ŠJ”­”ÅFˆÀ’è)
 //ˆø”Fstruct NUMBER* a : œZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : œZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : ¤‚ğŠi”[‚·‚é‘½”{’·•Ï”, struct NUMBER* d : —]‚è‚ğŠi”[‚·‚é‘½”{’·•Ï”
 //–ß’lF¬Œ÷ : 0, ¸”s(0œZ) : -1(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢), ¸”s(‚»‚Ì‘¼ƒGƒ‰[)F-2(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 //*****************************************************************
@@ -824,7 +819,10 @@ int Dev_divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 	{
 		copyNumber(&tmp_b, &tmp_d);
 
-		setInt(&tmp_e, 1);
+		if (setInt(&tmp_e, 1))
+		{
+			return -2;
+		}
 
 		while (1)
 		{
@@ -869,7 +867,7 @@ int Dev_divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 
 
 //*****************************************************************
-//ŠT—vF‘½”{’·•Ï”a, b‚Ì¤‚ğ‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ğd‚ÉŠi”[‚·‚é(ŠJ”­”ÅF•sˆÀ’è)
+//ŠT—vF‘½”{’·•Ï”a, b‚Ì¤‚ğ‹‚ß‚Äc‚ÉŠi”[‚µA—]‚è‚ğd‚ÉŠi”[‚·‚éB(ŠJ”­”ÅF•sˆÀ’è)
 //ˆø”Fstruct NUMBER* a : œZ‚·‚é‘½”{’·•Ï”(1), struct NUMBER* b : œZ‚·‚é‘½”{’·•Ï”(2), struct NUMBER* c : ¤‚ğŠi”[‚·‚é‘½”{’·•Ï”, struct NUMBER* d : —]‚è‚ğŠi”[‚·‚é‘½”{’·•Ï”
 //–ß’lF¬Œ÷ : 0, ¸”s(0œZ) : -1(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢), ¸”s(‚»‚Ì‘¼ƒGƒ‰[)F-2(c, d‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
 //•â‘«FÅãˆÊbit‚Ü‚Å’l‚ª“ü‚Á‚Ä‚¢‚éó‘Ô‚¾‚Æoverflow‚·‚éê‡‚ª‚ ‚é(—áFKETA=5,a=99999,b=99998)
@@ -938,7 +936,10 @@ int Dev_divide_X(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NU
 		//è‡3
 		copyNumber(&tmp_b, &tmp_d);
 		//è‡4
-		setInt(&tmp_e, 1);
+		if (setInt(&tmp_e, 1))
+		{
+			return -2;
+		}
 		//è‡5
 
 		//d‚ğ10”{‚µ‚Ä‚¢‚­‚ÆÅãˆÊbit‚ª”ñ0‚É‚È‚Á‚Ä‚à‚È‚¨a>d‚Æ‚È‚é‚±‚Æ‚ª‚ ‚é‚½‚ß, ‚³‚ç‚É10”{‚³‚ê‚Äoverflow‚µ‚Ä‚µ‚Ü‚¤
@@ -1009,6 +1010,8 @@ int power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 			return -1;
 		}
 		copyNumber(&ans, c);
+
+		return 0;
 	}
 
 	//—İæ
@@ -1033,6 +1036,114 @@ int power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 		}
 	}
 	copyNumber(&ans, c);
+
+	return 0;
+}
+
+
+//*****************************************************************
+//ŠT—vF‘½”{’·•Ï”a, b‚É‚¨‚¢‚Äa‚Ìbæ‚ğc‚ÉŠi”[‚·‚é(ŠJ”­”Å)
+//ˆø”Fstruct NUMBER* a : —İæ‚³‚ê‚é‘½”{’·•Ï”, struct NUMBER* b :	—İæ‚Ìã‚Ì‚Æ‚±‚Ì‘½”{’·•Ï”, struct NUMBER* c : —İæ‚µ‚½’l‚ğŠi”[‚·‚é‘½”{’·•Ï”
+//–ß’lF¬Œ÷ : 0, ¸”s (ƒI[ƒo[ƒtƒ[/ƒAƒ“ƒ_[ƒtƒ[): -1(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢), ¸”s(b<0)F-2(c‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
+//*****************************************************************
+int Dev_power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER ans;
+	struct NUMBER tmp;
+
+	clearByZero(&ans);
+	clearByZero(&tmp);
+
+	//b‚ª•‰‚Ì‚Æ‚«
+	if (getSign(b) == -1)
+	{
+		return -2;
+	}
+
+	//b = 0‚Ì‚Æ‚«
+	if (isZero(b) == 0)
+	{
+		//c = 1
+		if (increment(&ans, &ans))
+		{
+			return -1;
+		}
+	}
+	else
+	{
+		if (Cul_power(a, b, &ans))
+		{
+			return -1;
+		}
+	}
+
+	copyNumber(&ans, c);
+
+	return 0;
+}
+
+int Cul_power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER tmp, div;
+	if (setInt(&tmp, 1))
+		//tmp = 1
+	{
+		return -1;
+	}
+
+	if (isZero(b) == 0)			// b = 0 ?
+	{
+		copyNumber(&tmp, c);
+		return 0;
+	}
+
+	if (numComp(b, &tmp) == 0)	//b = 1 ?
+	{
+		copyNumber(a, c);
+		return 0;
+	}
+
+	if (increment(&tmp, &tmp))	// tmp = 1 -> 2
+	{
+		return -1;
+	}
+
+	if (divide(b, &tmp, &div, &tmp))	//tmp = 2 -> è—], div = b / 2
+	{
+		return -1;
+	}
+
+	if (isZero(&tmp) == 0)	//‹ô”‚Ì
+	{
+		if (multiple(a, a, &tmp))	//a^2
+		{
+			return -1;
+		}
+
+		if (Cul_power(&tmp, &div, &tmp))
+		{
+			return -1;
+		}
+	}
+	else
+	{
+		if (decrement(b, &tmp))
+		{
+			return -1;
+		}
+
+		if (Cul_power(a, &tmp, &tmp))
+		{
+			return -1;
+		}
+
+		if (multiple(a, &tmp, &tmp))
+		{
+			return -1;
+		}
+	}
+
+	copyNumber(&tmp, c);
 
 	return 0;
 }
@@ -1105,14 +1216,18 @@ int gcd(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 	clearByZero(&num2);
 	clearByZero(&rem);
 
-	getAbs(a, &num1);
-	getAbs(b, &num2);
 
 	if (numComp(&num1, &num2) == -1)	//a < b ‚È‚ç
 	{
 		getAbs(b, &num1);
 		getAbs(a, &num2);
 	}
+	else
+	{
+		getAbs(a, &num1);
+		getAbs(b, &num2);
+	}
+
 
 	if (isZero(&num2) == 0)
 	{
@@ -1222,6 +1337,133 @@ int Dev_lcm(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 
 	return 0;
 }
+
+
+///////////////////////////////////////////////////////////////////
+//ŠT—vF‘½”{’·•Ï”a‚É‚¨‚¢‚Äa‚ª‘f”‚©”»•Ê‚·‚é
+//ˆø”Fstruct NUMBER* a : ‘f”‚©”»•Ê‚·‚é‘½”{’·•Ï”
+//–ß’lF‘f”‚Å‚ ‚é : 1, ‘f”‚Å‚È‚¢‚Ü‚½‚Í¸”s : 0
+///////////////////////////////////////////////////////////////////
+int isPrime(struct NUMBER* a)
+{
+	struct NUMBER num, rem, tmp, two, tmp2;
+	clearByZero(&num);
+	clearByZero(&rem);
+	clearByZero(&tmp);
+	clearByZero(&two);
+	clearByZero(&tmp2);
+
+	if (setInt(&two, 2))
+	{
+		return 0;
+	}
+
+	if (setInt(&num, 1))
+	{
+		return 0;
+	}
+	copyNumber(&num, &tmp);		//setInt(&tmp, 1);
+
+	if (numComp(a, &tmp) <= 0)	//a <= 1
+	{
+		return 0;
+	}
+
+	if (Dev_divide(a, &two, &tmp, &rem))	//2‚ÅŠ„‚é  tmp = a/2 ... ‚±‚ê‚Ì”ÍˆÍ“à‚Åƒ‹[ƒv‚·‚é
+	{
+		return 0;
+	}
+
+	if (numComp(&tmp, &num/*1*/) == 0)	//a=2‚Ì‚Ìˆ—
+	{
+		return 1;
+	}
+
+
+	while (1)
+	{
+		if (isZero(&rem) == 0)	//Š„‚èØ‚ê‚½‚Æ‚«
+		{
+			break;
+		}
+
+		if (add(&num, &two, &num))
+		{
+			break;
+		}
+
+		if (numComp(&num, &tmp) > 0)
+		{
+			return 1;
+		}
+
+		if (Dev_divide(a, &num, &tmp2, &rem))
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////
+//ŠT—vF‘½”{’·•Ï”a‚É‚¨‚¢‚Äa‚Ì•½•ûª‚ğb‚ÉŠi”[‚·‚é(³®‚É‚Ísqrt(a)‚ğ’´‚¦‚È‚¢Å‘å‚Ì®”‚ğb‚ÉŠi”[‚·‚é)
+//ˆø”Fstruct NUMBER* a : •½•ûª‚ğ‹‚ß‚é‘½”{’·•Ï”, struct NUMBER* b : •½•ûª‚ğŠi”[‚·‚é‘½”{’·•Ï”
+//–ß’lF¬Œ÷ : 0, ¸”s : -1(b‚Ì’l‚Í•Ï‰»‚µ‚È‚¢)
+///////////////////////////////////////////////////////////////////
+int squareroot(struct NUMBER* a, struct NUMBER* b)
+{
+	struct NUMBER tmp_a, tmp_b, two, cnt;
+	clearByZero(&tmp_a);
+	clearByZero(&tmp_b);
+	clearByZero(&two);
+	clearByZero(&cnt);
+
+	if (numComp(a, &tmp_a) < 0)	//a < 0 ?
+	{
+		return -1;
+	}
+
+	copyNumber(a, &tmp_a);	//tmp_a ... N
+
+	if (increment(&tmp_b, &tmp_b))	//tmp = 1
+	{
+		return -1;
+	}
+
+	setInt(&two, 2);
+
+	while (1)
+	{
+		if (numComp(&tmp_a, &tmp_b) < 0)	//tmp_a < tmp ?
+		{
+			break;
+		}
+
+		if (sub(&tmp_a, &tmp_b, &tmp_a))
+		{
+			return -1;
+		}
+
+		if (increment(&cnt, &cnt))
+		{
+			return -1;
+		}
+
+		if (add(&tmp_b, &two, &tmp_b))
+		{
+			return -1;
+		}
+	}
+
+	copyNumber(&cnt, b);
+
+	return 0;
+}
+
+
+
 
 
 ///////////////////////////////////////////////////////////////////
@@ -1377,17 +1619,28 @@ double FastRoopFunction_ASM(int (*func)(struct NUMBER*, struct NUMBER*, struct N
 	double flag = 0;
 	struct NUMBER tmp_a, tmp_b, tmp_c;
 
-	clearByZero(&tmp_a);
-	clearByZero(&tmp_b);
-	clearByZero(&tmp_c);
+
 
 	while (i++ < roop)
 	{
-		setRnd(&tmp_a, KETA);
-		setRnd(&tmp_b, (random() % KETA) + 1);
+		int i;
+		clearByZero(&tmp_a);
+		clearByZero(&tmp_b);
+		clearByZero(&tmp_c);
+		setRnd(&tmp_a, size);
+		setRnd(&tmp_b, 1);//(random() % size) + 1);
+		setSign(&tmp_b, 1);
 		clockStart();
-		tmp += (func(&tmp_a, &tmp_b, &tmp_c) ? 1 : 0);
+		i = func(&tmp_a, &tmp_b, &tmp_c);
 		flag += clockStop();
+		tmp += ((i != 0 && i != -1) ? 1 : 0);
+		if (i)
+		{
+			printf("-----------------------------------------------------------------------------\n");
+			printf("a = ");	dispNumber(&tmp_a);	putchar('\n');
+			printf("b = ");	dispNumber(&tmp_b);	putchar('\n');
+			printf("c = ");	dispNumber(&tmp_c);	putchar('\n');
+		}
 	}
 	printf("ErrorNumber: %d\n", tmp);
 
@@ -1401,24 +1654,32 @@ double FastRoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUM
 	double flag = 0;
 	struct NUMBER tmp_a, tmp_b, tmp_c, tmp_d;
 
-	clearByZero(&tmp_a);
-	clearByZero(&tmp_b);
-	clearByZero(&tmp_c);
-	clearByZero(&tmp_d);
-
-	while(i++ < roop)
+	while (i++ < roop)
 	{
+		int i;
+		clearByZero(&tmp_a);
+		clearByZero(&tmp_b);
+		clearByZero(&tmp_c);
+		clearByZero(&tmp_d);
 		setRnd(&tmp_a, KETA);
 		setRnd(&tmp_b, (random() % KETA) + 1);
 		clockStart();
-		tmp += (Dev_divide(&tmp_a, &tmp_b, &tmp_c, &tmp_d) ? 1 : 0);
+		i = Dev_divide(&tmp_a, &tmp_b, &tmp_c, &tmp_d);
 		flag += clockStop();
+		tmp += ((i != 0 && i != -1) ? 1 : 0);
+		if (i)
+		{
+			printf("-----------------------------------------------------------------------------\n");
+			printf("a = ");	dispNumber(&tmp_a);	putchar('\n');
+			printf("b = ");	dispNumber(&tmp_b);	putchar('\n');
+			printf("c = ");	dispNumber(&tmp_c);	putchar('\n');
+			printf("d = ");	dispNumber(&tmp_d);	putchar('\n');
+		}
 	}
 	printf("ErrorNumber: %d\n", tmp);
 
 	return flag;
 }
-
 
 
 void check_setInt(struct NUMBER* a)
@@ -1470,4 +1731,3 @@ int checkNumber(struct NUMBER* a, int x)
 	}
 	return 0;
 }
-
