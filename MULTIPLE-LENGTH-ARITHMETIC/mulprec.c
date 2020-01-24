@@ -1,6 +1,30 @@
 #include "mulprec.h"
 
 
+
+//*****************************************************************
+//概要：多倍長演算における初期設定を行い, struct NUMBER 型 定数 SN_0...0, SN_1...1, SN_2...2
+//引数：なし
+//戻値：なし
+//*****************************************************************
+void MLAsetup(void)
+{
+	int i;
+	// 0
+	for (i = 0; i < KETA; i++)
+		SN_0.n[i] = 0;
+	SN_0.sign = SIGN_PLUS;
+	// 1
+	copyNumber(&SN_0, &SN_1);
+	SN_1.n[0] = 1;
+	// 2
+	copyNumber(&SN_0, &SN_2);
+	SN_2.n[0] = 2;
+	// trush
+	copyNumber(&SN_0, &SN_trush);
+}
+
+
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数を0に初期化する
 //引数：struct NUMBER* a : 初期化する多倍長変数
@@ -8,12 +32,7 @@
 ///////////////////////////////////////////////////////////////////
 void clearByZero(struct NUMBER* a)
 {
-	int i;
-	for (i = 0; i < KETA; i++)
-	{
-		a->n[i] = 0;
-	}
-	setSign(a, 1);
+	copyNumber(&SN_0, a);
 }
 
 
@@ -25,19 +44,18 @@ void clearByZero(struct NUMBER* a)
 void dispNumber(struct NUMBER* a)
 {
 	int i;
-	if (getSign(a) >= 0)
-	{
-		putchar('+');
+	if (getSign(a) == SIGN_PLUS)	putchar('+');
+	else							putchar('-');
+
+	if (KETA == 1000) {
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%04d", a->n[i]);        //数字確認用
 	}
-	else
-	{
-		putchar('-');
+	else if (KETA == 10) {
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%1d", a->n[i]);        //数字確認用
 	}
 
-	for (i = KETA - 1; i >= 0; i--)
-	{
-		printf("%2d", a->n[i]);        //数字確認用
-	}
 }
 
 
@@ -51,11 +69,9 @@ void setRnd(struct NUMBER* a, int k)
 	int i;
 	//数字
 	for (i = 0; i < k; i++)
-	{
-		a->n[i] = random() % 10;
-	}
+		a->n[i] = random() % RADIX;
 	//符号
-	setSign(a, (random() % 2 == 1) ? 1 : -1);
+	setSign(a, (random() % 2 == 1) ? SIGN_PLUS : SIGN_MINUS);
 }
 
 
@@ -66,14 +82,7 @@ void setRnd(struct NUMBER* a, int k)
 ///////////////////////////////////////////////////////////////////
 void copyNumber(struct NUMBER* a, struct NUMBER* b)
 {
-	int i;
-	//数字
-	for (i = 0; i < KETA; i++)
-	{
-		b->n[i] = a->n[i];
-	}
-	//符号
-	setSign(b, getSign(a));
+	*b = *a;
 }
 
 
@@ -85,7 +94,7 @@ void copyNumber(struct NUMBER* a, struct NUMBER* b)
 void getAbs(struct NUMBER* a, struct NUMBER* b)
 {
 	copyNumber(a, b);
-	setSign(b, 1);
+	setSign(b, SIGN_PLUS);
 }
 
 
@@ -96,20 +105,10 @@ void getAbs(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 int isZero(struct NUMBER* a)
 {
-	/* if (getSign(a) == -1)
-	{
-		return -1;
-	}
- */			//-0が紛れ込んだ時の対策
 	int i;
 	for (i = 0; i < KETA; i++)
-	{
 		if (a->n[i] != 0)
-		{
 			return -1;
-		}
-	}
-
 	return 0;
 }
 
@@ -117,32 +116,25 @@ int isZero(struct NUMBER* a)
 ///////////////////////////////////////////////////////////////////
 //概要：多倍長変数を10倍して格納する
 //引数：struct NUMBER* a : 10倍したい多倍長変数, struct NUMBER* b : 計算した値を格納する多倍長変数
-//戻値：成功 : 0, 桁あふれ : -1(bの値は変化しない)
+//戻値：成功 : 0, 失敗(桁あふれ) : -1(bの値は変化しない), 失敗(その他) : -1(bの値は変化しない), 
+//補足：RADIX進数に変更したため10倍ではなくRADIX倍になる。
 ///////////////////////////////////////////////////////////////////
 int mulBy10(struct NUMBER* a, struct NUMBER* b)
 {
 	int i;
-	struct NUMBER tmp;
+	struct NUMBER ans;
 
-	clearByZero(&tmp);
+	clearByZero(&ans);
 
 	if (a->n[KETA - 1] != 0)
-	{
 		return -1;
-	}
-
 	for (i = 0; i < KETA - 1; i++)
-	{
-		tmp.n[i + 1] = a->n[i];
-	}
-
-	tmp.n[0] = 0;
-	if (setSign(&tmp, getSign(a)))
-	{
+		ans.n[i + 1] = a->n[i];
+	ans.n[0] = 0;
+	if (setSign(&ans, getSign(a)))
 		return -1;
-	}
 
-	copyNumber(&tmp, b);
+	copyNumber(&ans, b);
 
 	return 0;
 }
@@ -155,26 +147,19 @@ int mulBy10(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 int divBy10(struct NUMBER* a, struct NUMBER* b)
 {
-	int i;
+	int i, rem = a->n[0];
+	struct NUMBER ans;
 
-	struct NUMBER tmp;
-
-	clearByZero(&tmp);
+	clearByZero(&ans);
 
 	for (i = 1; i < KETA; i++)
-	{
-		tmp.n[i - 1] = a->n[i];
-	}
-
-	tmp.n[KETA - 1] = 0;
-	if (setSign(&tmp, getSign(a)))
-	{
+		ans.n[i - 1] = a->n[i];
+	ans.n[KETA - 1] = 0;
+	if (setSign(&ans, getSign(a)))
 		return -1;
-	}
+	copyNumber(&ans, b);
 
-	copyNumber(&tmp, b);
-
-	return a->n[0];
+	return rem;
 }
 
 
@@ -185,41 +170,25 @@ int divBy10(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 int setInt(struct NUMBER* a, int x)
 {
-	int i = 1, tmp = x < 0 ? ~x + 1 : x;
+	int i = 0;
+	struct NUMBER ans;
+	clearByZero(&ans);
 
-	while ((tmp /= 10) > 0)
-	{
-		i++;
+	if (x < 0) {	//aはすでに＋なのでxが-のときのみsetSignする
+		x *= -1;
+		if (setSign(&ans, SIGN_MINUS))
+			return -1;
 	}
 
-	if (i > KETA)
-	{
-		return -1;
+	while (x > 0) {
+		if (i >= KETA)
+			return -1;
+		ans.n[i++] = x % RADIX;
+		x /= RADIX;
 	}
 
-	i = 0;
 	clearByZero(a);
-
-	if (x < 0)
-	{
-		x = ~x + 1/*わんちゃん*-1でもコンパイラで処理される*/;
-		if (setSign(a, -1))
-		{
-			return -1;
-		}
-	}
-	else
-	{
-		if (setSign(a, 1))
-		{
-			return -1;
-		}
-	}
-
-	while (x > 0)
-	{
-		x = (x - (a->n[i++] = x % 10)) / 10;
-	}
+	copyNumber(&ans, a);
 
 	return 0;
 }
@@ -232,10 +201,8 @@ int setInt(struct NUMBER* a, int x)
 ///////////////////////////////////////////////////////////////////
 int setSign(struct NUMBER* a, int s)
 {
-	if (s != 1 && s != -1)
-	{
+	if (s != SIGN_PLUS && s != SIGN_MINUS)
 		return -1;
-	}
 	a->sign = s;
 
 	return 0;
@@ -261,62 +228,33 @@ int getSign(struct NUMBER* a)
 int numComp(struct NUMBER* a, struct NUMBER* b)
 {
 	int sign_a = getSign(a), sign_b = getSign(b);
-
-	if (sign_a == 1 && sign_b == -1)
-	{
+	//-0が紛れ込んだ時の対策
+	if (isZero(a) == 0 && isZero(b) == 0)
+		return 0;
+	if (sign_a == SIGN_PLUS && sign_b == SIGN_MINUS)
 		return 1;
-	}
-
-	if (sign_a == -1 && sign_b == 1)
-	{
+	if (sign_a == SIGN_MINUS && sign_b == SIGN_PLUS)
 		return -1;
-	}
-
-	if (sign_a == 1 && sign_b == 1)
-	{
+	if (sign_a == SIGN_PLUS && sign_b == SIGN_PLUS) {
 		int i = KETA;
-		while (--i >= 0)
-		{
+		while (--i >= 0) {
 			if (a->n[i] == b->n[i])
-			{
 				continue;
-			}
-
 			if (a->n[i] > b->n[i])
-			{
 				return 1;
-			}
-
-			//if (a->n[i] < b->n[i])
-			//{
-			//	return 1;
-			//}
-			return -1;
+			return -1;	//a < b
 		}
 	}
-	else //if (sign_a == -1 && sign_b == -1)
-	{
+	else { //if (sign_a == SIGN_MINUS && sign_b == SIGN_MINUS)
 		int i = KETA;
-		while (--i >= 0)
-		{
+		while (--i >= 0) {
 			if (a->n[i] == b->n[i])
-			{
 				continue;
-			}
-
 			if (a->n[i] > b->n[i])
-			{
 				return -1;
-			}
-
-			//if (a->n[i] < b->n[i])
-			//{
-			//	return 1;
-			//}
-			return 1;
+			return 1;	// a < b
 		}
 	}
-
 	return 0;
 }
 
@@ -328,9 +266,11 @@ int numComp(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 void swap(struct NUMBER* a, struct NUMBER* b)
 {
-	struct NUMBER tmp = *a;
-	*a = *b;
-	*b = tmp;
+	struct NUMBER tmp;
+	clearByZero(&tmp);
+	copyNumber(a, &tmp);
+	copyNumber(b, a);
+	copyNumber(&tmp, b);
 }
 
 
@@ -341,50 +281,37 @@ void swap(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
-	int d, i = 0, flag = 0;//min...0, max...1
-	struct NUMBER tmp;		//tmpを使うことで失敗時にcのデータが壊れないようにいている
+	int sign_a = getSign(a), sign_b = getSign(b);
+	struct NUMBER ans;
 
-	clearByZero(&tmp);
+	clearByZero(&ans);
 
-	if (getSign(a) < 0 && getSign(b) < 0)		//a < 0, b < 0 --- a + b = -(|a| + |b|)
-	{
-		struct NUMBER tmp_a, tmp_b;
-		getAbs(a, &tmp_a), getAbs(b, &tmp_b);
-		flag = add(&tmp_a, &tmp_b, &tmp);
-		if (setSign(&tmp, -1))
-		{
-			return -1;
-		}
-	}
-	else if (getSign(a) < 0 && getSign(b) > 0)	//a < 0, b > 0 --- a + b = b - |a| 
-	{
-		struct NUMBER tmp_a;
-		getAbs(a, &tmp_a);
-		flag = sub(b, &tmp_a, &tmp);
-	}
-	else if (getSign(a) > 0 && getSign(b) < 0)	//a > 0, b < 0 --- a + b = a - |b|
-	{
-		struct NUMBER tmp_b;
-		getAbs(b, &tmp_b);
-		flag = sub(a, &tmp_b, &tmp);
-	}
-	else
-	{
-		//加算
-		for (i = 0; i < KETA; i++)
-		{
-			d = a->n[i] + b->n[i] + flag;
-			tmp.n[i] = d % 10;
-			flag = d / 10;
-		}
+	if (sign_a == SIGN_MINUS && sign_b == SIGN_PLUS) {	//a < 0, b > 0 --- a + b = b - |a|
+		struct NUMBER abs_a;
+		clearByZero(&abs_a);
+		getAbs(a, &abs_a);
+		return sub(b, &abs_a, c);
 	}
 
-	if (flag)
-	{
-		return -1;
+	if (sign_a == SIGN_PLUS && sign_b == SIGN_MINUS) {	//a > 0, b < 0 --- a + b = a - |b|
+		struct NUMBER abs_b;
+		clearByZero(&abs_b);
+		getAbs(b, &abs_b);
+		return sub(a, &abs_b, c);
 	}
 
-	copyNumber(&tmp, c);
+	if (sign_a == SIGN_MINUS && sign_b == SIGN_MINUS)	//a < 0, b < 0 --- a - b = -(|a| + |b|)
+		setSign(&ans, SIGN_MINUS);
+
+	//加算
+	int i, d, flg = 0;
+	for (i = 0; i < KETA; i++) {
+		d = a->n[i] + b->n[i] + flg;
+		ans.n[i] = d % RADIX;
+		flg = d / RADIX;
+	}
+
+	copyNumber(&ans, c);
 
 	return 0;
 }
@@ -397,14 +324,7 @@ int add(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 ///////////////////////////////////////////////////////////////////
 int increment(struct NUMBER* a, struct NUMBER* b)
 {
-	struct NUMBER one;
-
-	if (setInt(&one, 1))
-	{
-		return -1;
-	}
-
-	return add(a, &one, b);
+	return add(a, &SN_1, b);
 }
 
 
@@ -415,68 +335,52 @@ int increment(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
-	struct NUMBER tmp;
-	int flag = 0;
-	int i = 0;
+	int sign_a = getSign(a), sign_b = getSign(b);
+	struct NUMBER ans, abs_a, abs_b;
 
-	clearByZero(&tmp);
+	clearByZero(&ans);
+	clearByZero(&abs_a);
+	clearByZero(&abs_b);
 
-
-	if (getSign(a) < 0 && getSign(b) < 0)		//a < 0, b < 0 --- a - b = |b| - |a|
-	{
-		struct NUMBER tmp_a, tmp_b;
-		getAbs(a, &tmp_a), getAbs(b, &tmp_b);
-		flag = sub(&tmp_b, &tmp_a, &tmp);
+	if (sign_a == SIGN_MINUS && sign_b == SIGN_PLUS) {	//a < 0, b > 0 --- a - b = -(|a| + b)
+		getAbs(a, &abs_a);
+		if (add(&abs_a, b, c))			return -1;
+		if (setSign(c, SIGN_MINUS))		return -1;
+		return 0;
 	}
-	else if (getSign(a) < 0 && getSign(b) > 0)	//a < 0, b > 0 --- a - b = -(|a| + b)
-	{
-		struct NUMBER tmp_a;
-		getAbs(a, &tmp_a);
-		flag = add(&tmp_a, b, &tmp);
-		if (setSign(&tmp, -1))
-		{
+
+	if (sign_a == SIGN_PLUS && sign_b == SIGN_MINUS) {	//a > 0, b < 0 --- a - b = a + |b|
+		getAbs(b, &abs_b);
+		return add(a, &abs_b, c);
+	}
+
+	if (sign_a == SIGN_MINUS && sign_b == SIGN_MINUS)	//a < 0, b < 0 --- a - b = |b| - |a| = -(|a| - |b|)
+		setSign(&ans, SIGN_MINUS);
+
+	//減算
+	int i, d, flg = 0;
+
+	getAbs(a, &abs_a);
+	getAbs(b, &abs_b);
+
+	if (numComp(&abs_a, &abs_b) < 0) {			//a < b
+		swap(&abs_a, &abs_b);
+		if (setSign(&ans, getSign(&ans) * SIGN_MINUS)) // a < 0, b < 0 のときにマイナスになっている可能性があるので反転
 			return -1;
-		}
-	}
-	else if (getSign(a) > 0 && getSign(b) < 0)	//a > 0, b < 0 --- a - b = a + |b|
-	{
-		struct NUMBER tmp_b;
-		getAbs(b, &tmp_b);
-		flag = add(a, &tmp_b, &tmp);
-	}
-	//ここから減算
-	else if (numComp(a, b) < 0)			//a < b
-	{
-		flag = sub(b, a, &tmp);
-		if (setSign(&tmp, -1))
-		{
-			return -1;
-		}
-	}
-	else
-	{
-		//減算
-		for (i = 0; i < KETA; i++)
-		{
-			if (a->n[i] - flag >= b->n[i])
-			{
-				tmp.n[i] = a->n[i] - flag - b->n[i];
-				flag = 0;
-			}
-			else
-			{
-				tmp.n[i] = 10 + a->n[i] - flag - b->n[i];
-				flag = 1;
-			}
-		}
 	}
 
-	if (flag != 0)
-	{
-		return -1;
+	for (i = 0; i < KETA; i++) {
+		d = abs_a.n[i] - abs_b.n[i] - flg;
+
+		if (d < 0)
+			d += RADIX, flg = 1;
+		else
+			flg = 0;
+
+		ans.n[i] = d;
 	}
 
-	copyNumber(&tmp, c);
+	copyNumber(&ans, c);
 
 	return 0;
 }
@@ -489,12 +393,7 @@ int sub(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 ///////////////////////////////////////////////////////////////////
 int decrement(struct NUMBER* a, struct NUMBER* b)
 {
-	struct NUMBER one;
-	if (setInt(&one, 1))
-	{
-		return -1;
-	}
-	return sub(a, &one, b);
+	return sub(a, &SN_1, b);
 }
 
 
@@ -506,52 +405,36 @@ int decrement(struct NUMBER* a, struct NUMBER* b)
 int multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
 	struct NUMBER ans, tmp;
-	int i, j, k, flag = 0;
+	int i, j, flag = 0;
 
-	if (isZero(a) == 0 || isZero(b) == 0)		//すくなくともどちらか一方が0のとき
-	{
+	if (isZero(a) == 0 || isZero(b) == 0) {		//すくなくともどちらか一方が0のとき
 		clearByZero(c);
 		return 0;
 	}
 
 	clearByZero(&ans);
+	clearByZero(&tmp);
 
-	for (i = 0; i < KETA; i++)
-	{
+	for (i = 0; i < KETA; i++) {
 		clearByZero(&tmp);
-		for (j = 0; j < KETA; j++)
-		{
+		for (j = 0; j < KETA; j++) {
 			int e = a->n[j] * b->n[i] + flag;
-			tmp.n[j] = e % 10;
-			flag = e / 10;
+			tmp.n[j] = e % RADIX;
+			flag = e / RADIX;
 		}
 
 		if (flag)
-		{
 			return -1;
-		}
-
-		for (k = 0; k < i; k++)
-		{
+		for (j = 0; j < i; j++)
 			if (mulBy10(&tmp, &tmp))
-			{
 				return -1;
-			}
-		}
-
 		if (add(&ans, &tmp, &ans))
-		{
 			return -1;
-		}
 	}
-
-	if (getSign(a) + getSign(b) == 0)			//どちらか一方のみ負のとき
-	{
-		if (setSign(&ans, -1))
-		{
+	//どちらか一方のみ負のとき
+	if (getSign(a) + getSign(b) == SIGN_PLUS + SIGN_MINUS)
+		if (setSign(&ans, SIGN_MINUS))
 			return -1;
-		}
-	}
 
 	copyNumber(&ans, c);
 
@@ -563,54 +446,46 @@ int multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 //概要：多倍長変数a, bの積を求めてcに格納する(開発版)
 //引数：struct NUMBER* a : 乗算する多倍長変数(1), struct NUMBER* b : 乗算する多倍長変数(2), struct NUMBER* c : 積を格納する多倍長変数
 //戻値：成功 : 0, 失敗 : -1(cの値は変化しない)
-//補足：multiple関数の約3倍(KETA=10), 約16.7倍(KETA=100)の速度
+//補足：multiple関数の約3倍(KETA=10), 約16.7倍(KETA=100)の速度. (KETA / 2)
 //*****************************************************************
 int Dev_multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
 	struct NUMBER ans, tmp;
 	int i, j, flag = 0;
 
-	if (isZero(a) == 0 || isZero(b) == 0)		//どちらか一方が0のとき
-	{
+	if (isZero(a) == 0 || isZero(b) == 0) {		//どちらか一方が0のとき
 		clearByZero(c);
 		return 0;
 	}
 
 	clearByZero(&ans);
+	clearByZero(&tmp);
 
-	for (i = KETA - 1; i >= 0; i--)		//bの上の桁から行う
-	{
-		clearByZero(&tmp);
-		for (j = 0; j < KETA; j++)		//一段分の答えを出す
-		{
-			int e = a->n[j] * b->n[i] + flag;
-			tmp.n[j] = e % 10;
-			flag = e / 10;
+	for (i = KETA - 1; i >= 0; i--) {		//bの上の桁から行う
+		if (b->n[i]) {
+			if (b->n[i] == 1) {
+				copyNumber(a, &tmp);
+			}
+			else {
+				for (j = 0; j < KETA; j++) {		//一段分の答えを出す
+					int e = a->n[j] * b->n[i] + flag;
+					tmp.n[j] = e % RADIX;
+					flag = e / RADIX;
+				}
+				if (flag)
+					return -1;
+			}
+
+			if (add(&ans, &tmp, &ans))			//加算
+				return -1;
 		}
-
-		if (flag)
-		{
+		if (i > 0 && mulBy10(&ans, &ans))	//最後の1回以外で10倍 * RADIX倍
 			return -1;
-		}
-
-		if (add(&ans, &tmp, &ans))			//加算
-		{
-			return -1;
-		}
-
-		if (i > 0 && mulBy10(&ans, &ans))	//最後の1回以外で10倍
-		{
-			return -1;
-		}
 	}
-
-	if (getSign(a) + getSign(b) == 0)			//どちらか一方が負のとき
-	{
-		if (setSign(&ans, -1))
-		{
+	//どちらか一方のみ負のとき
+	if (getSign(a) + getSign(b) == SIGN_PLUS + SIGN_MINUS)
+		if (setSign(&ans, SIGN_MINUS))
 			return -1;
-		}
-	}
 
 	copyNumber(&ans, c);
 
@@ -625,73 +500,44 @@ int Dev_multiple(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 ///////////////////////////////////////////////////////////////////
 int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
 {
-	struct NUMBER ans, rem;
+	struct NUMBER ans, rem, abs_a, abs_b;
 
 	if (isZero(b) == 0)
-	{
 		return -1;
-	}
-	if (isZero(a) == 0)
-	{
+	if (isZero(a) == 0) {
 		clearByZero(c);
 		clearByZero(d);
 		return 0;
 	}
-	if (getSign(a) == -1 || getSign(b) == -1)			//少なくともどちらか一方が負のとき
-	{
-		int num;
-		struct NUMBER tmp_a, tmp_b;
 
-		getAbs(a, &tmp_a);
-		getAbs(b, &tmp_b);
+	clearByZero(&ans);
+	clearByZero(&rem);
+	clearByZero(&abs_a);
+	clearByZero(&abs_b);
 
-		num = divide(&tmp_a, &tmp_b, &ans, &rem);
-		if (num < 0)
-		{
-			return num;
-		}
-		if (getSign(a) + getSign(b) == 0)	//どちらか一方のみ負のとき
-		{
-			if (setSign(&ans, -1))
-			{
-				return -2;
-			}
-		}
-		if (setSign(&rem, getSign(a)))		//余りの符号
-		{
-			return -2;
-		}
+	getAbs(a, &abs_a);
+	getAbs(b, &abs_b);
 
-		copyNumber(&ans, c);
-		copyNumber(&rem, d);
-
-		return 0;
-	}
 	//1桁判別用
 	int flg;
 	if ((flg = divide_U10(a, b, c, d)) != -2)	//bが1桁でない場合以外の時の除算
-	{
 		return flg;
-	}
-	//ここから++の除算
-	clearByZero(&ans);
-	copyNumber(a, &rem);
 
-	while (1)
-	{
-		if (numComp(&rem, b) < 0)//x < y
-		{
-			break;
-		}
-		if (sub(&rem, b, &rem))
-		{
+	//ここから++の除算
+	copyNumber(&abs_a, &rem);
+
+	while (numComp(&rem, &abs_b) >= 0) {
+		if (sub(&rem, &abs_b, &rem))
 			return -2;
-		}
 		if (increment(&ans, &ans))
-		{
 			return -2;
-		}
 	}
+
+	if (getSign(a) + getSign(b) == SIGN_PLUS + SIGN_MINUS)
+		if (setSign(&ans, SIGN_MINUS))	//どちらか一方のみ負のとき
+			return -2;
+	if (setSign(&rem, getSign(a)))		//余りの符号
+		return -2;
 
 	copyNumber(&ans, c);
 	copyNumber(&rem, d);
@@ -707,42 +553,49 @@ int divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* 
 //*****************************************************************
 int divide_U10(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
 {
-	struct NUMBER ans;
-	int h = 0;
-	int i = KETA - 1;
+	struct NUMBER ans, rem;
+	int h = 0, i = KETA - 1;
 
 	clearByZero(&ans);
 
 	//余り : rem
-	int rem = divBy10(b, &ans);
+	int r = divBy10(b, &ans);
 
-	if (b == 0)				//0除算
-	{
+	if (isZero(b) == 0)		//0除算
 		return -1;
-	}
-
 	if (isZero(&ans))		//bが1桁でないなら
-	{
 		return -2;
+	if (isZero(a) == 0) {	//分子が0
+		clearByZero(c);
+		clearByZero(d);
+		return 0;
 	}
-
-	clearByZero(&ans);
 
 	//bが1桁なら
 	//b は rem と等しい(struct NUMBER -> int)
 
-	for (i = KETA - 1; i >= 0; i--)
-	{
-		int t = h * 10 + a->n[i];
-		h = t % rem;
-		ans.n[i] = (t - h) / rem;
+	for (i = KETA - 1; i >= 0; i--) {
+		int t = h * RADIX + a->n[i];
+		h = t % r;
+		ans.n[i] = t / r;
 	}
 
-	copyNumber(&ans, c);
-	if (setInt(d, h))		//余り
-	{
-		return -3;
+	//どちらか一方のみ負のとき
+	if (getSign(a) + getSign(b) == SIGN_PLUS + SIGN_MINUS) {
+		if (setSign(&ans, SIGN_MINUS))
+			return -3;
 	}
+	else {
+		setSign(&ans, SIGN_PLUS);		//1桁の判別の際にcにマイナスの符号が入っている可能性があるため設定する
+	}
+
+	if (setInt(&rem, h))		//余り
+		return -3;
+	if (setSign(&rem, getSign(a)))		//余りの符号
+		return -3;
+
+	copyNumber(&ans, c);
+	copyNumber(&rem, d);
 
 	return 0;
 }
@@ -755,9 +608,15 @@ int divide_U10(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 //*****************************************************************
 int Dev_divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
 {
-	struct NUMBER ans;
-	struct NUMBER tmp_a, tmp_b, tmp_d, tmp_e;
-	struct NUMBER tmp_check;		//確認用変数
+	struct NUMBER ans, tmp_a, tmp_b, tmp_d, tmp_e, tmp_check;
+
+	if (isZero(b) == 0)		//0除算
+		return -1;
+	if (isZero(a) == 0) {	//分子が0のとき
+		clearByZero(c);
+		clearByZero(d);
+		return 0;
+	}
 
 	clearByZero(&ans);
 	clearByZero(&tmp_a);
@@ -766,98 +625,41 @@ int Dev_divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 	clearByZero(&tmp_e);
 	clearByZero(&tmp_check);
 
-	//0除算
-	if (isZero(b) == 0)
-	{
-		return -1;
-	}
-	//分子が0のとき
-	if (isZero(a) == 0)
-	{
-		clearByZero(c);
-		clearByZero(d);
-		return 0;
-	}
-	//マイナス処理
-	//少なくともどちらか一方が負のとき
-	if (getSign(a) == -1 || getSign(b) == -1)
-	{
-		getAbs(a, &tmp_a);
-		getAbs(b, &tmp_b);
-
-		int num = Dev_divide(&tmp_a, &tmp_b, &ans, &tmp_d);
-		if (num < 0)
-		{
-			return num;
-		}
-		//どちらか一方のみ負のとき
-		if (getSign(a) + getSign(b) == 0)
-		{
-			if (setSign(&ans, -1))
-			{
-				return -2;
-			}
-		}
-		//余りの符号 (余りの符号は常に割られる数の符号に依存する)
-		if (setSign(&tmp_d, getSign(a)))
-		{
-			return -2;
-		}
-
-		copyNumber(&ans, c);
-		copyNumber(&tmp_d, d);
-
-		return 0;
-	}
-
 	//ここから++の除算
 
-	copyNumber(a, &tmp_a);
-	copyNumber(b, &tmp_b);
+	getAbs(a, &tmp_a);
+	getAbs(b, &tmp_b);
 
-	while (numComp(&tmp_a, &tmp_b) != -1)	//a < b でないなら
-	{
+	while (numComp(&tmp_a, &tmp_b) >= 0) {	//a < b でないなら
 		copyNumber(&tmp_b, &tmp_d);
 
-		if (setInt(&tmp_e, 1))
-		{
-			return -2;
-		}
+		copyNumber(&SN_1, &tmp_e);
 
-		while (1)
-		{
-			int rem = divBy10(&tmp_a, &tmp_check);
-
+		int rem = divBy10(&tmp_a, &tmp_check);
+		while (1) {
 			int flg = numComp(&tmp_check, &tmp_d);
-			if (flg == -1)	//tmp_dをmulBy10するとtmp_aを超える
-			{
+			if (flg == -1)						//tmp_dをmulBy10するとtmp_aを超える
 				break;
-			}
-			else if (flg == 0 && rem < tmp_d.n[0])	//等しいときは余りremによって決まる. rem>0ならtmp_a > tmp_d*10
-			{										//d.n[0]との比較は1回目のため, 2回目以降はd.n[0]は0なので常にfalse
-				break;
-			}
-
-			//tmp_a >= tmp_d * 10のとき
-
+			if (flg == 0 && rem < tmp_d.n[0])	//等しいときは余りremによって決まる. rem>0ならtmp_a > tmp_d*10    * RADIX
+				break;							//d.n[0]との比較は1回目のため, 2回目以降はd.n[0]は0なので常にfalse
+			//tmp_a >= tmp_d * 10のとき * RADIX
 			if (mulBy10(&tmp_d, &tmp_d))
-			{
 				return -2;
-			}
-
 			if (mulBy10(&tmp_e, &tmp_e))
-			{
 				return -2;
-			}
 		}
 
-		sub(&tmp_a, &tmp_d, &tmp_a);
-
-		if (add(&ans, &tmp_e, &ans))
-		{
+		if (sub(&tmp_a, &tmp_d, &tmp_a))
 			return -2;
-		}
+		if (add(&ans, &tmp_e, &ans))
+			return -2;
 	}
+
+	if (getSign(a) + getSign(b) == SIGN_PLUS + SIGN_MINUS)
+		if (setSign(&ans, -1))	//どちらか一方のみ負のとき
+			return -2;
+	if (setSign(&tmp_a, getSign(a)))		//余りの符号
+		return -2;
 
 	copyNumber(&tmp_a, d);
 	copyNumber(&ans, c);
@@ -874,52 +676,38 @@ int Dev_divide(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMB
 //*****************************************************************
 int Dev_divide_X(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NUMBER* d)
 {
-	struct NUMBER ans;
-	struct NUMBER tmp_a, tmp_b, tmp_d, tmp_e;
+	struct NUMBER ans, tmp_a, tmp_b, tmp_d, tmp_e;
 	//手順1
 	clearByZero(&ans);
 	clearByZero(&tmp_a);
 	clearByZero(&tmp_b);
 	clearByZero(&tmp_d);
 	clearByZero(&tmp_e);
-
 	//0除算
 	if (isZero(b) == 0)
-	{
 		return -1;
-	}
 	//分子が0のとき
-	if (isZero(a) == 0)
-	{
+	if (isZero(a) == 0) {
 		clearByZero(c);
 		clearByZero(d);
 		return 0;
 	}
 	//マイナス処理
 	//少なくともどちらか一方が負のとき
-	if (getSign(a) == -1 || getSign(b) == -1)
-	{
+	if (getSign(a) == SIGN_MINUS || getSign(b) == SIGN_MINUS) {
 		getAbs(a, &tmp_a);
 		getAbs(b, &tmp_b);
 
 		int num = Dev_divide_X(&tmp_a, &tmp_b, &ans, &tmp_d);
 		if (num < 0)
-		{
 			return num;
-		}
 		//どちらか一方のみ負のとき
-		if (getSign(a) + getSign(b) == 0)
-		{
-			if (setSign(&ans, -1))
-			{
+		if (getSign(a) + getSign(b) == SIGN_PLUS + SIGN_MINUS)
+			if (setSign(&ans, SIGN_MINUS))
 				return -2;
-			}
-		}
 		//余りの符号 (余りの符号は常に割られる数の符号に依存する)
 		if (setSign(&tmp_d, getSign(a)))
-		{
 			return -2;
-		}
 
 		copyNumber(&ans, c);
 		copyNumber(&tmp_d, d);
@@ -931,47 +719,34 @@ int Dev_divide_X(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NU
 	copyNumber(b, &tmp_b);
 
 	//手順2
-	while (numComp(&tmp_a, &tmp_b) != -1)
-	{
+	while (numComp(&tmp_a, &tmp_b) != -1) {
 		//手順3
 		copyNumber(&tmp_b, &tmp_d);
 		//手順4
-		if (setInt(&tmp_e, 1))
-		{
-			return -2;
-		}
+		copyNumber(&SN_1, &tmp_e);
 		//手順5
 
-		//dを10倍していくと最上位bitが非0になってもなおa>dとなることがあるため, さらに10倍されてoverflowしてしまう
+		//dを10倍していくと最上位bitが非0になってもなおa>dとなることがあるため, さらに10倍されてoverflow * RADIX
 		//解決策1...常に余裕のある桁数を用意しておく
 		//解決策2...最上位bitの値が非0になったときに特別な処理を描く
-		while (1)
-		{
+		while (1) {
 			if (mulBy10(&tmp_d, &tmp_d))
-			{
 				return -2;
-			}
-
-			if (numComp(&tmp_a, &tmp_d) != 1)
-			{
+			if (numComp(&tmp_a, &tmp_d) != 1) {
 				divBy10(&tmp_d, &tmp_d);	//これだとKETA-1まで埋まるような数字の時に不具合が起きる可能性がある
 				break;
 			}
-
 			//手順6
 			if (mulBy10(&tmp_e, &tmp_e))
-			{
 				return -2;
-			}
 		}
 
 		//手順7
-		sub(&tmp_a, &tmp_d, &tmp_a);
+		if (sub(&tmp_a, &tmp_d, &tmp_a))
+			return -2;
 
 		if (add(&ans, &tmp_e, &ans))
-		{
 			return -2;
-		}
 	}
 
 	//手順10
@@ -989,51 +764,29 @@ int Dev_divide_X(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c, struct NU
 ///////////////////////////////////////////////////////////////////
 int power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
-	struct NUMBER ans;
-	struct NUMBER tmp;
+	struct NUMBER ans, tmp;
 
 	clearByZero(&ans);
 	clearByZero(&tmp);
 
-	//bが負のとき
-	if (getSign(b) == -1)
-	{
+	if (getSign(b) == SIGN_MINUS)	//bが負のとき
 		return -2;
-	}
-
-	//b = 0のとき
-	if (isZero(b) == 0)
-	{
-		//c = 1
-		if (increment(&ans, &ans))
-		{
-			return -1;
-		}
+	if (isZero(b) == 0) {	//b = 0のとき
+		copyNumber(&SN_1, &ans);
 		copyNumber(&ans, c);
-
 		return 0;
 	}
 
 	//累乗
 	copyNumber(a, &ans);
 	copyNumber(b, &tmp);
-	while (1)
-	{
+	while (1) {
 		if (decrement(&tmp, &tmp))
-		{
 			return -1;
-		}
-
 		if (isZero(&tmp) == 0)
-		{
 			break;
-		}
-
-		//処理
-		if (multiple(&ans, a, &ans))
-		{
+		if (Dev_multiple(&ans, a, &ans))
 			return -1;
-		}
 	}
 	copyNumber(&ans, c);
 
@@ -1049,33 +802,17 @@ int power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 int Dev_power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
 	struct NUMBER ans;
-	struct NUMBER tmp;
 
 	clearByZero(&ans);
-	clearByZero(&tmp);
-
 	//bが負のとき
-	if (getSign(b) == -1)
-	{
+	if (getSign(b) == SIGN_MINUS)
 		return -2;
-	}
-
 	//b = 0のとき
-	if (isZero(b) == 0)
-	{
-		//c = 1
-		if (increment(&ans, &ans))
-		{
-			return -1;
-		}
-	}
+	if (isZero(b) == 0)	//c = 1	
+		copyNumber(&SN_1, &ans);
 	else
-	{
 		if (Cul_power(a, b, &ans))
-		{
 			return -1;
-		}
-	}
 
 	copyNumber(&ans, c);
 
@@ -1085,62 +822,34 @@ int Dev_power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 int Cul_power(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
 	struct NUMBER tmp, div;
-	if (setInt(&tmp, 1))
-		//tmp = 1
-	{
-		return -1;
-	}
 
-	if (isZero(b) == 0)			// b = 0 ?
-	{
-		copyNumber(&tmp, c);
+	clearByZero(&div);
+	clearByZero(&tmp);
+
+	if (isZero(b) == 0) {			// b = 0 ?
+		copyNumber(&SN_1, c);
 		return 0;
 	}
-
-	if (numComp(b, &tmp) == 0)	//b = 1 ?
-	{
+	if (numComp(b, &SN_1) == 0) {	//b = 1 ?
 		copyNumber(a, c);
 		return 0;
 	}
 
-	if (increment(&tmp, &tmp))	// tmp = 1 -> 2
-	{
+	if (Dev_divide(b, &SN_2, &div, &tmp))//tmp = 2 -> 剰余, div = b / 2
 		return -1;
-	}
-
-	if (divide(b, &tmp, &div, &tmp))	//tmp = 2 -> 剰余, div = b / 2
-	{
-		return -1;
-	}
-
-	if (isZero(&tmp) == 0)	//偶数の時
-	{
-		if (multiple(a, a, &tmp))	//a^2
-		{
+	if (isZero(&tmp) == 0) {		//偶数の時
+		if (Dev_multiple(a, a, &tmp))	//a^2
 			return -1;
-		}
-
 		if (Cul_power(&tmp, &div, &tmp))
-		{
 			return -1;
-		}
 	}
-	else
-	{
+	else {
 		if (decrement(b, &tmp))
-		{
 			return -1;
-		}
-
 		if (Cul_power(a, &tmp, &tmp))
-		{
 			return -1;
-		}
-
-		if (multiple(a, &tmp, &tmp))
-		{
+		if (Dev_multiple(a, &tmp, &tmp))
 			return -1;
-		}
 	}
 
 	copyNumber(&tmp, c);
@@ -1162,39 +871,23 @@ int factorial(struct NUMBER* a, struct NUMBER* b)
 	clearByZero(&ans);
 	clearByZero(&tmp);
 
-	//a<0
-	if (getSign(a) < 0)
-	{
+	if (getSign(a) < 0)	//a<0
 		return -2;
-	}
-
-	//a=0
-	if (isZero(a) == 0)
-	{
-		increment(&ans, &ans);
-		copyNumber(&ans, b);
+	if (isZero(a) == 0) {	//a=0
+		copyNumber(&SN_1, b);
 		return 0;
 	}
 
 	copyNumber(a, &tmp);
 	copyNumber(a, &ans);
 
-	while (1)
-	{
+	while (1) {
 		if (decrement(&tmp, &tmp))
-		{
 			return -1;
-		}
-
 		if (isZero(&tmp) == 0)
-		{
 			break;
-		}
-
-		if (multiple(&ans, &tmp, &ans))
-		{
+		if (Dev_multiple(&ans, &tmp, &ans))
 			return -1;
-		}
 	}
 
 	copyNumber(&ans, b);
@@ -1210,48 +903,32 @@ int factorial(struct NUMBER* a, struct NUMBER* b)
 ///////////////////////////////////////////////////////////////////
 int gcd(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
-	struct NUMBER num1, num2, rem;
+	struct NUMBER abs_a, abs_b, rem;
 
-	clearByZero(&num1);
-	clearByZero(&num2);
+	clearByZero(&abs_a);
+	clearByZero(&abs_b);
 	clearByZero(&rem);
 
+	getAbs(a, &abs_a);
+	getAbs(b, &abs_b);
 
-	if (numComp(&num1, &num2) == -1)	//a < b なら
-	{
-		getAbs(b, &num1);
-		getAbs(a, &num2);
-	}
-	else
-	{
-		getAbs(a, &num1);
-		getAbs(b, &num2);
-	}
-
-
-	if (isZero(&num2) == 0)
-	{
-		copyNumber(&num1, c);
+	if (numComp(&abs_a, &abs_b) == -1)	//a < b なら
+		swap(&abs_a, &abs_b);
+	if (isZero(&abs_b) == 0) {
+		copyNumber(&abs_a, c);
 		return 0;
 	}
-
-	while (1)
-	{
-		if (divide(&num1, &num2, &num1/*不要*/, &rem))
-		{
+	while (1) {
+		if (Dev_divide(&abs_a, &abs_b, &SN_trush, &rem))
 			return -1;
-		}
-		copyNumber(&num2, &num1);
-		copyNumber(&rem, &num2);
-
+		copyNumber(&abs_b, &abs_a);
+		copyNumber(&rem, &abs_b);
 		if (isZero(&rem) == 0)
-		{
 			break;
-		}
 	}
 
 	//ここにきたとき除数はnum1になる
-	copyNumber(&num1, c);
+	copyNumber(&abs_a, c);
 
 	return 0;
 }
@@ -1264,32 +941,23 @@ int gcd(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 ///////////////////////////////////////////////////////////////////
 int lcm(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
-	struct NUMBER ans, num1, num2;
+	struct NUMBER ans, abs_a, abs_b;
+
 	clearByZero(&ans);
-	clearByZero(&num1);
-	clearByZero(&num2);
+	clearByZero(&abs_a);
+	clearByZero(&abs_b);
 
-	getAbs(a, &num1);
-	getAbs(b, &num2);
+	getAbs(a, &abs_a);
+	getAbs(b, &abs_b);
 
-	if (multiple(&num1, &num2, &ans))
-	{
+	if (Dev_multiple(&abs_a, &abs_b, &ans))
 		return -1;
-	}
-
 	//ans = |a|*|b|
-
-	if (gcd(a, b, &num1))		//gcdは符号に影響しないためa,bをそのまま用いている
-	{
+	if (gcd(a, b, &abs_a))		//gcdは符号に影響しないためa,bをそのまま用いている
 		return -1;
-	}
-
 	//num1 = gcd(a,b)
-
-	if (divide(&ans, &num1, &ans, &num1/*不要*/))
-	{
+	if (Dev_divide(&ans, &abs_a, &ans, &SN_trush))
 		return -1;
-	}
 
 	copyNumber(&ans, c);
 
@@ -1305,33 +973,21 @@ int lcm(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 //*****************************************************************
 int Dev_lcm(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 {
-	struct NUMBER ans, num1, num2;
-	clearByZero(&ans);
-	clearByZero(&num1);
-	clearByZero(&num2);
+	struct NUMBER ans, abs_a, abs_b;
 
-	getAbs(a, &num1);
-	getAbs(b, &num2);
+	clearByZero(&ans);
+	clearByZero(&abs_a);
+	clearByZero(&abs_b);
+
+	getAbs(a, &abs_a);
+	getAbs(b, &abs_b);
 
 	if (gcd(a, b, &ans))		//gcdは符号に影響しないためa,bをそのまま用いている
-	{
 		return -1;
-	}
-
-	//ans = gcd(a,b)
-
-	if (divide(&num1, &ans, &ans, &num1/*不要*/))
-	{
+	if (Dev_divide(&abs_a, &ans, &ans, &SN_trush))
 		return -1;
-	}
-
-	//ans = |a| / gcd(a,b)
-	//num2 = |b|
-
-	if (multiple(&ans, &num2, &ans))
-	{
+	if (Dev_multiple(&ans, &abs_b, &ans))
 		return -1;
-	}
 
 	copyNumber(&ans, c);
 
@@ -1346,63 +1002,32 @@ int Dev_lcm(struct NUMBER* a, struct NUMBER* b, struct NUMBER* c)
 ///////////////////////////////////////////////////////////////////
 int isPrime(struct NUMBER* a)
 {
-	struct NUMBER num, rem, tmp, two, tmp2;
+	struct NUMBER num, rem, tmp;
+
 	clearByZero(&num);
 	clearByZero(&rem);
 	clearByZero(&tmp);
-	clearByZero(&two);
-	clearByZero(&tmp2);
 
-	if (setInt(&two, 2))
-	{
+	if (numComp(a, &SN_1) <= 0)	//a <= 1
 		return 0;
-	}
-
-	if (setInt(&num, 1))
-	{
+	if (Dev_divide(a, &SN_2, &tmp, &rem))	//2で割る  tmp = a/2 ... これの範囲内でループする
 		return 0;
-	}
-	copyNumber(&num, &tmp);		//setInt(&tmp, 1);
-
-	if (numComp(a, &tmp) <= 0)	//a <= 1
-	{
-		return 0;
-	}
-
-	if (Dev_divide(a, &two, &tmp, &rem))	//2で割る  tmp = a/2 ... これの範囲内でループする
-	{
-		return 0;
-	}
-
-	if (numComp(&tmp, &num/*1*/) == 0)	//a=2の時の処理
-	{
+	if (numComp(&tmp, &SN_1) == 0)	//a=2 (a/2=1)の時の処理	... 2は素数
 		return 1;
-	}
 
+	if (setInt(&num, 3))
+		return 0;
 
-	while (1)
-	{
+	while (1) {
+		if (Dev_divide(a, &num, &SN_trush, &rem))
+			break;
 		if (isZero(&rem) == 0)	//割り切れたとき
-		{
 			break;
-		}
-
-		if (add(&num, &two, &num))
-		{
+		if (add(&num, &SN_2, &num))
 			break;
-		}
-
 		if (numComp(&num, &tmp) > 0)
-		{
 			return 1;
-		}
-
-		if (Dev_divide(a, &num, &tmp2, &rem))
-		{
-			break;
-		}
 	}
-
 	return 0;
 }
 
@@ -1414,47 +1039,26 @@ int isPrime(struct NUMBER* a)
 ///////////////////////////////////////////////////////////////////
 int squareroot(struct NUMBER* a, struct NUMBER* b)
 {
-	struct NUMBER tmp_a, tmp_b, two, cnt;
+	struct NUMBER tmp_a, tmp_b, cnt;
 	clearByZero(&tmp_a);
 	clearByZero(&tmp_b);
-	clearByZero(&two);
 	clearByZero(&cnt);
 
-	if (numComp(a, &tmp_a) < 0)	//a < 0 ?
-	{
+	if (numComp(a, &SN_0) < 0)	//a < 0 ?
 		return -1;
-	}
 
 	copyNumber(a, &tmp_a);	//tmp_a ... N
+	copyNumber(&SN_1, &tmp_b);
 
-	if (increment(&tmp_b, &tmp_b))	//tmp = 1
-	{
-		return -1;
-	}
-
-	setInt(&two, 2);
-
-	while (1)
-	{
+	while (1) {
 		if (numComp(&tmp_a, &tmp_b) < 0)	//tmp_a < tmp ?
-		{
 			break;
-		}
-
 		if (sub(&tmp_a, &tmp_b, &tmp_a))
-		{
 			return -1;
-		}
-
 		if (increment(&cnt, &cnt))
-		{
 			return -1;
-		}
-
-		if (add(&tmp_b, &two, &tmp_b))
-		{
+		if (add(&tmp_b, &SN_2, &tmp_b))
 			return -1;
-		}
 	}
 
 	copyNumber(&cnt, b);
@@ -1463,11 +1067,452 @@ int squareroot(struct NUMBER* a, struct NUMBER* b)
 }
 
 
+///////////////////////////////////////////////////////////////////
+//概要：多倍長変数aにおいてaの平方根をNewton-Raphson法を用いて求めてbに格納する(正式にはsqrt(a)を超えない最大の整数をbに格納する)
+//引数：struct NUMBER* a : 平方根を求める多倍長変数, struct NUMBER* b : 平方根を格納する多倍長変数
+//戻値：成功 : 0, 失敗 : -1(bの値は変化しない)
+///////////////////////////////////////////////////////////////////
+int sqrt_newton(struct NUMBER* a, struct NUMBER* b)
+{
+	struct NUMBER x;		//現在の平方根の近似値
+	struct NUMBER x_b;		//1つ前のx
+	struct NUMBER x_c;		//2つ前のx
 
+	clearByZero(&x);
+	clearByZero(&x_b);
+	clearByZero(&x_c);
+
+	if (numComp(a, &SN_0) < 0)		//a < 0
+		return -11;
+	if (numComp(a, &SN_0) == 0 || numComp(a, &SN_1) == 0) {	// a = 0 or 1 なら sqrt(a) = a
+		copyNumber(a, b);
+		return 0;
+	}
+	//初期値xの設定
+	//if (Dev_divide(a, &SN_2, &x, &SN_trush))		//X = a / 2
+	//	return -1;
+	copyNumber(a, &x);
+	int i = 0, cnt;
+	while (x.n[KETA - 1 - i] == 0)
+		i++;
+	cnt = (KETA - (i / 2)) / 4 + KETA / 20;	//最上位bitまで値が入っている状態に最適化
+	for (i = 0; i < cnt; i++)  //KETA/4+ROOP/5 , ROOP = KETA / 4
+		divBy10(&x, &x);
+	Dev_divide(&x, &SN_2, &x, &SN_trush);	// x = (a*10^(-(KETA/4+ROOP/5)))/2
+
+	copyNumber(&x, &x_b);
+	//copyNumber(&x, &x_c);
+	putchar('\n');//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+	while (1) {
+
+		putchar('\r');	dispNumber(&x);//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+		copyNumber(&x_b, &x_c);
+		copyNumber(&x, &x_b);
+
+		// x = (b + (N / b)) / 2
+		if (Dev_divide(a, &x_b, &x, &SN_trush))
+			return -12;
+		if (add(&x, &x_b, &x))
+			return -13;
+
+		if (Dev_divide(&x, &SN_2, &x, &SN_trush))
+			return -14;
+
+		if (numComp(&x, &x_b) == 0)		// 収束
+			break;
+		if (numComp(&x, &x_c) == 0) {
+			if (numComp(&x_b, &x) < 0)
+				copyNumber(&x_b, &x);
+			break;
+		}
+	}
+	putchar('\n');//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+	copyNumber(&x, b);
+	return 0;
+}
+
+/*
+///////////////////////////////////////////////////////////////////
+//概要：多倍長変数aにおいてaの平方根を二分法を用いて求めてbに格納する(正式にはsqrt(a)を超えない最大の整数をbに格納する)
+//引数：struct NUMBER* a : 平方根を求める多倍長変数, struct NUMBER* b : 平方根を格納する多倍長変数
+//戻値：成功 : 0, 失敗 : -1(cの値は変化しない), 符号が同じ : -2(cの値は変化しない)
+///////////////////////////////////////////////////////////////////
+int bisection(struct NUMBER* a, struct NUMBER* b, struct NUMBER* need_sqrt, struct NUMBER* c)
+{
+	struct NUMBER e;	//収束判定用の変数
+	struct NUMBER d;	//現在のxの値
+	struct NUMBER fx, fa, fb;	//f(x), f(a), f(b)の値
+	struct NUMBER num_plus, num_minus, num2, trush;
+	int as, bs, cs;		//f(a), f(b), f(c)の符号
+
+	clearByZero(&e);
+	clearByZero(&d);
+	clearByZero(&fx);
+	clearByZero(&fa);
+	clearByZero(&fb);
+	clearByZero(&num_plus);
+	clearByZero(&num_minus);
+	clearByZero(&num2);
+	clearByZero(&trush);
+
+	setInt(&num2, 2);
+
+	if (f(a, need_sqrt, fa))
+		return -1;
+	as = getSign(fa);
+
+	if (f(b, need_sqrt, fb))
+		return -1;
+	bs = getSign(&fb);
+
+	if (as <= bs)
+		return -2
+
+	copyNumber(a, &num_plus);
+	copyNumber(b, &num_minus);
+
+	while (1){
+		if (add(&num_plus, &num_minus, &d))
+			return -1;
+		if(Dev_divide(&d, &num2, &d, &trush))
+			return -1;
+		//d = (a + b) / 2
+		if(f(&d, need_sqrt, &fx))
+			return -1;
+		if (getAbs(&fx, &fx))
+			return -1;
+
+		cs = numComp(&fx, e);
+
+		if (cs <= 0)	//|f(x)| < e
+			break;
+		if(getSign(&fx) == as)
+			copyNumber(&d, &num_plus);
+
+		if (sub(&fa, &fb, &d))
+			return -1;
+
+	}
+
+}
+
+int f(struct NUMBER* a, struct NUMBER* pow_pi_2, struct NUMBER* b)
+{
+	struct NUMBER a2;
+	clearByZero(&a2);
+
+	//x*x - (pi^2)
+	if (Dev_multiple(a, a, &a2))
+		return -1;
+	if (sub(&a2, pow_pi_2, &a2))
+		return -1;
+	copyNumber(&a2, b);
+	return 0;
+}
+*/
 
 
 ///////////////////////////////////////////////////////////////////
-//                        以下時間計測用                          //
+//                          以下分数用                           //
+///////////////////////////////////////////////////////////////////
+
+void B_clearByZero(struct BUNSU* a)
+{
+	clearByZero(&a->bunbo);
+	clearByZero(&a->bunshi);
+	B_setSign(a, SIGN_PLUS);
+}
+
+void B_dispNumber(struct BUNSU* a)
+{
+	int i;
+
+	if (B_getSign(a) == SIGN_PLUS)	putchar('+');
+	else							putchar('-');
+
+	if (KETA == 1000) {
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%01d", a->bunshi.n[i]);
+		putchar('/');
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%01d", a->bunbo.n[i]);
+	}
+	else if (KETA == 10) {
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%01d", a->bunshi.n[i]);
+		putchar('/');
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%01d", a->bunbo.n[i]);
+	}
+}
+
+int B_getSign(struct BUNSU* a)
+{
+	return a->sign;
+}
+
+int B_setSign(struct BUNSU* a, int sign)
+{
+	if (sign != SIGN_PLUS && sign != SIGN_MINUS)
+		return -1;
+	a->sign = sign;
+	return 0;
+}
+
+void B_copyNumber(struct BUNSU* a, struct BUNSU* b)
+{
+	copyNumber(&a->bunshi, &b->bunshi);
+	copyNumber(&a->bunbo, &b->bunbo);
+	b->sign = a->sign;
+}
+
+void B_setRnd(struct BUNSU* a, int keta)
+{
+	setRnd(&a->bunshi, keta);
+	setRnd(&a->bunbo, keta);
+	setSign(&a->bunshi, SIGN_PLUS);
+	setSign(&a->bunbo, SIGN_PLUS);
+	B_setSign(a, (random() % 2) ? SIGN_PLUS : SIGN_MINUS);
+}
+
+int B_setInt(struct BUNSU* a, int bunshi, int bunbo)
+{
+	struct BUNSU ans;
+	int sign = SIGN_PLUS;
+
+	B_clearByZero(&ans);
+
+	if (bunbo == 0)
+		return -1;
+	if (bunshi < 0) {
+		sign = SIGN_MINUS;
+		bunshi *= -1;
+	}
+	if (bunbo < 0) {
+		sign *= -1;
+		bunbo *= -1;
+	}
+	// bunshi >= 0, bunbo >= 0, sign = 1 or -1
+
+	if (setInt(&ans.bunshi, bunshi))
+		return -1;
+	if (setInt(&ans.bunbo, bunbo))
+		return -1;
+	if (B_setSign(&ans, sign))
+		return -1;
+
+
+	B_clearByZero(a);
+	B_copyNumber(&ans, a);
+
+	return 0;
+}
+
+void B_getAbs(struct BUNSU* a, struct BUNSU* b)
+{
+	B_copyNumber(a, b);
+	B_setSign(b, SIGN_PLUS);
+}
+
+int B_yakubun(struct BUNSU* a, struct BUNSU* b)
+{
+	struct NUMBER gcd_a;
+	struct BUNSU ans;
+
+	clearByZero(&gcd_a);
+	B_clearByZero(&ans);
+
+	if (gcd(&a->bunshi, &a->bunbo, &gcd_a))
+		return -1;
+	if (Dev_divide(&a->bunshi, &gcd_a, &ans.bunshi, &SN_trush))
+		return -1;
+	if (Dev_divide(&a->bunbo, &gcd_a, &ans.bunbo, &SN_trush))
+		return -1;
+	if (B_setSign(&ans, B_getSign(a)))
+		return -1;
+	B_copyNumber(&ans, b);
+	return 0;
+}
+
+int B_multiple(struct BUNSU* a, struct BUNSU* b, struct BUNSU* c)
+{
+	struct BUNSU ans, bst_a, bst_b;
+	struct NUMBER gcd_ab, gcd_ba;
+
+	B_clearByZero(&ans);
+	B_clearByZero(&bst_a);
+	B_clearByZero(&bst_b);
+	clearByZero(&gcd_ab);
+	clearByZero(&gcd_ba);
+
+	if (B_yakubun(a, &bst_a))
+		return -1;
+	if (B_yakubun(b, &bst_b))
+		return -1;
+	gcd(&bst_a.bunshi, &bst_b.bunbo, &gcd_ab);
+	gcd(&bst_b.bunshi, &bst_a.bunbo, &gcd_ba);
+
+	Dev_divide(&bst_a.bunshi, &gcd_ab, &bst_a.bunshi, &SN_trush);
+	Dev_divide(&bst_b.bunbo, &gcd_ab, &bst_b.bunbo, &SN_trush);
+	Dev_divide(&bst_b.bunshi, &gcd_ba, &bst_b.bunshi, &SN_trush);
+	Dev_divide(&bst_a.bunbo, &gcd_ba, &bst_a.bunbo, &SN_trush);
+
+	if (Dev_multiple(&a->bunshi, &b->bunshi, &ans.bunshi))
+		return -1;
+	if (Dev_multiple(&a->bunbo, &b->bunbo, &ans.bunbo))
+		return -1;
+	if (B_setSign(&ans, B_getSign(a) * B_getSign(b)))
+		return -1;
+	if (B_yakubun(&ans, &ans))
+		return -1;
+	B_copyNumber(&ans, c);
+	return 0;
+}
+
+int B_divide(struct BUNSU* a, struct BUNSU* b, struct BUNSU* c)
+{
+	struct BUNSU ans, rev;
+
+	B_clearByZero(&ans);
+	B_clearByZero(&rev);
+
+	copyNumber(&b->bunshi, &rev.bunbo);
+	copyNumber(&b->bunbo, &rev.bunshi);
+	if (B_setSign(&rev, B_getSign(b)))
+		return -1;
+	if (B_multiple(a, &rev, &ans))
+		return -1;
+	B_copyNumber(&ans, c);
+	return 0;
+}
+
+int B_add(struct BUNSU* a, struct BUNSU* b, struct BUNSU* c) // (a/b)+(c/d) = (ad+bc)/(bd)
+{
+	struct BUNSU ans;
+	struct NUMBER mul_ad, mul_bc, tmp;
+
+	clearByZero(&mul_ad);
+	clearByZero(&mul_bc);
+	clearByZero(&tmp);
+	B_clearByZero(&ans);
+
+	//分子
+	if (Dev_multiple(&a->bunshi, &b->bunbo, &mul_ad))	//ad
+		return -11;
+	if (Dev_multiple(&a->bunbo, &b->bunshi, &mul_bc))	//bc
+		return -12;
+	if (setSign(&mul_ad, B_getSign(a)))
+		return -13;
+	if (setSign(&mul_bc, B_getSign(b)))
+		return -14;
+	if (add(&mul_ad, &mul_bc, &tmp))	//ad+bc -> tmp
+		return -15;
+	if (B_setSign(&ans, getSign(&tmp)))		//符号
+		return -16;
+	getAbs(&tmp, &tmp);
+	copyNumber(&tmp, &ans.bunshi);
+
+	//分母
+	clearByZero(&tmp);
+	if (Dev_multiple(&a->bunbo, &b->bunbo, &tmp))
+		return -17;
+	copyNumber(&tmp, &ans.bunbo);
+
+	if (B_yakubun(&ans, &ans))
+		return -18;
+	B_copyNumber(&ans, c);
+	return 0;
+}
+
+int B_sub(struct BUNSU* a, struct BUNSU* b, struct BUNSU* c)
+{
+	struct BUNSU ans;
+	struct NUMBER mul_ad, mul_bc, tmp;
+
+	clearByZero(&mul_ad);
+	clearByZero(&mul_bc);
+	clearByZero(&tmp);
+	B_clearByZero(&ans);
+
+	//分子
+	if (Dev_multiple(&a->bunshi, &b->bunbo, &mul_ad))	//ad
+		return -11;
+	if (Dev_multiple(&a->bunbo, &b->bunshi, &mul_bc))	//bc
+		return -12;
+	if (setSign(&mul_ad, B_getSign(a)))
+		return -13;
+	if (setSign(&mul_bc, B_getSign(b)))
+		return -14;
+	if (sub(&mul_ad, &mul_bc, &tmp))	//ad-bc -> tmp
+		return -15;
+	if (B_setSign(&ans, getSign(&tmp)))		//符号
+		return -16;
+	getAbs(&tmp, &tmp);
+	copyNumber(&tmp, &ans.bunshi);
+
+	//分母
+	clearByZero(&tmp);
+	if (Dev_multiple(&a->bunbo, &b->bunbo, &tmp))
+		return -17;
+	copyNumber(&tmp, &ans.bunbo);
+
+	if (B_yakubun(&ans, &ans))
+		return -18;
+	B_copyNumber(&ans, c);
+	return 0;
+}
+
+void NtoB_copyNumber(struct NUMBER* a, struct NUMBER* b, struct BUNSU* c)
+{
+	copyNumber(a, &c->bunshi);		//分子
+	copyNumber(b, &c->bunbo);		//分母
+}
+//符号はbにつく
+void BtoN_copyNumber(struct BUNSU* a, struct NUMBER* b, struct NUMBER* c)
+{
+	struct NUMBER ans;
+	clearByZero(&ans);
+	copyNumber(&a->bunshi, &ans);	//分子には符号をつけるため一度ansに入れている
+	setSign(&ans, B_getSign(a));
+	copyNumber(&ans, b);
+	copyNumber(&a->bunbo, c);
+}
+
+int B_FractionToReal(struct BUNSU* a, struct NUMBER* b)
+{
+	struct NUMBER ans;
+	clearByZero(&ans);
+	clearByZero(&SN_trush);
+
+	if (Dev_divide(&a->bunshi, &a->bunbo, &ans, &SN_trush))
+		return -1;
+	if (setSign(&ans, B_getSign(a)))
+		return -1;
+	copyNumber(&ans, b);
+	return 0;
+}
+
+int B_RealToFraction(struct NUMBER* a, struct BUNSU* b)
+{
+	struct BUNSU ans;
+	B_clearByZero(&ans);
+	//符号
+	if (B_setSign(&ans, getSign(a)))
+		return -1;
+	//分子
+	getAbs(a, &ans.bunshi);
+	//分母
+	copyNumber(&SN_1, &ans.bunbo);
+
+	B_copyNumber(&ans, b);
+	return 0;
+}
+
+
+///////////////////////////////////////////////////////////////////
+//                        以下時間計測用                         //
 ///////////////////////////////////////////////////////////////////
 
 #ifndef _DEBUG
@@ -1477,11 +1522,14 @@ static double tstart, tend;
 
 void timeStart(void)
 {
-	clockStart();
+	timeCount = time(NULL);
 }
-double timeStop(void)
+unsigned int timeStop(void)
 {
-	return clockStop();
+	time_t stop = time(NULL);
+	time_t diff = stop - timeCount;
+	timeCount = 0;
+	return (unsigned int)diff;
 }
 
 void clockStart(void)
@@ -1505,7 +1553,7 @@ void timeStart(void)
 }
 
 //s
-double timeStop(void)
+unsigned int timeStop(void)
 {
 	time_t stop = time(NULL);
 	time_t diff = stop - timeCount;
@@ -1586,16 +1634,6 @@ void RoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUMBER*, 
 
 		int flag = func(&tmp_a, &tmp_b, &tmp_c, &tmp_d);
 
-		//確認
-		if (1)
-		{
-			struct NUMBER check;
-			clearByZero(&check);
-			multiple(&tmp_b, &tmp_c, &check);
-			add(&check, &tmp_d, &check);
-			flag = (numComp(&check, &tmp_a) == 0 && flag == 0) ? 0 : -1;
-		}
-
 		switch (style)
 		{
 		case None:
@@ -1661,13 +1699,13 @@ double FastRoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUM
 		clearByZero(&tmp_b);
 		clearByZero(&tmp_c);
 		clearByZero(&tmp_d);
-		setRnd(&tmp_a, KETA);
+		setRnd(&tmp_a, KETA - 1);
 		setRnd(&tmp_b, (random() % KETA) + 1);
 		clockStart();
-		i = Dev_divide(&tmp_a, &tmp_b, &tmp_c, &tmp_d);
+		i = func(&tmp_a, &tmp_b, &tmp_c, &tmp_d);
 		flag += clockStop();
 		tmp += ((i != 0 && i != -1) ? 1 : 0);
-		if (i)
+		if (i != 0 && i != -1)
 		{
 			printf("-----------------------------------------------------------------------------\n");
 			printf("a = ");	dispNumber(&tmp_a);	putchar('\n');
@@ -1679,55 +1717,4 @@ double FastRoopFunction_D(int (*func)(struct NUMBER*, struct NUMBER*, struct NUM
 	printf("ErrorNumber: %d\n", tmp);
 
 	return flag;
-}
-
-
-void check_setInt(struct NUMBER* a)
-{
-	int x = random();
-	setInt(a, x);
-
-	if (checkNumber(a, x))
-	{
-		printf("a = ");
-		dispNumber(a);
-		putchar('\n');
-		printf("x = %d\n", x);
-	}
-}
-
-//a, xが等しければ0, 違うなら-1
-int checkNumber(struct NUMBER* a, int x)
-{
-	int i;
-	int a_int = 0;
-	int max;
-	if (KETA < 10)
-	{
-		max = KETA;
-	}
-	else
-	{
-		max = 10;
-	}
-
-	for (i = 0; i < max; i++)
-	{
-		a_int *= 10;
-		a_int += a->n[max - 1 - i];
-
-	}
-
-	if (a->sign == -1)
-	{
-		a_int = ~a_int + 1;
-	}
-
-	//printf("a->n ---> (int) = %d, x = %d\n", a_int, x);
-
-	if (a_int != x)
-	{
-		return -1;
-	}
-	return 0;
 }
