@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="culPI.c" />
     <ClCompile Include="MLA.c" />
     <ClCompile Include="mulprec.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="culPI.h" />
     <ClInclude Include="mulprec.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
