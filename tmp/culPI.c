@@ -3,7 +3,7 @@
 /*
   2   A   P  1   C   D   E   F   G
 PI  = ― × Σ  ― ( ― - ― - ― - ― + ― )  =  R × Σ  S ( T - U - V - W + X )  =  R × Σ  S × T  =  R × Σ  S  =  R × Y
-      B  N=0 H   I   J   K   L   M
+	  B  N=0 H   I   J   K   L   M
 */
 int culPI(void)
 {
@@ -11,15 +11,15 @@ int culPI(void)
 	printf("Setting Up ... ");
 #endif // DO_PRINT
 
-    if (ROOP == 0) {
-        printf("Error: ROOP : %d\n", ROOP);
+	if (ROOP == 0) {
+		printf("Error: ROOP : %d\n", ROOP);
 #if RADIX == 10000
-        printf("KETA needs 4 ~\n");
+		printf("KETA needs 4 ~\n");
 #elif RADIX == 10
-        printf("KETA needs 16 ~\n");
+		printf("KETA needs 16 ~\n");
 #endif
-        return -1;
-    }
+		return -1;
+	}
 
 	timeStart();
 
@@ -30,8 +30,8 @@ int culPI(void)
 	clearByZero(&ans);
 	clearByZero(&trush);
 
-	clearByZero(&A);
-	clearByZero(&B);
+	//clearByZero(&A);
+	//clearByZero(&B);
 	clearByZero(&C);
 	clearByZero(&D);
 	clearByZero(&E);
@@ -46,7 +46,7 @@ int culPI(void)
 
 	clearByZero(&N);
 	clearByZero(&P);
-	
+
 	B_clearByZero(&R);
 	B_clearByZero(&S);
 	B_clearByZero(&T);
@@ -62,9 +62,9 @@ int culPI(void)
 	flg += setInt(&num_6, 6);
 
 	// A
-	flg += setInt(&A, 9);
+	//flg += setInt(&A, 9);
 	// B
-	flg += setInt(&B, 8);
+	//flg += setInt(&B, 8);
 	// C
 	flg += setInt(&C, 16);
 	// D
@@ -82,7 +82,8 @@ int culPI(void)
 	// P ループ最大回数
 	flg += setInt(&P, ROOP);
 	// R = A / B
-	NtoB_copyNumber(&A, &B, &R);
+	//NtoB_copyNumber(&A, &B, &R);
+	B_setInt(&R, 9, 8);
 
 	if (flg) {
 		printf(" Error: where.CulPI.Setup\n");
@@ -93,8 +94,8 @@ int culPI(void)
 #if DO_PRINT
 	printf("Done !\n\rRoop \'%d\' times ... %d / %d", ROOP, i, ROOP);
 #endif // DO_PRINT
-	
-	while (numComp(&N, &P) < 0){
+
+	while (numComp(&N, &P) < 0) {
 
 		clearByZero(&H);
 		clearByZero(&I);
@@ -174,7 +175,7 @@ int culPI(void)
 #endif // DO_PRINT
 
 
-	
+
 	// R * Y -> Z ... PI^2
 	flg = B_multiple(&R, &Y, &Z);
 
@@ -189,7 +190,7 @@ int culPI(void)
 
 
 
-	while (1){
+	while (1) {
 		i = mulBy10(&Z.bunshi, &Z.bunshi);
 		if (i == -1)
 			break;
@@ -231,14 +232,14 @@ int culPI(void)
 		return -1;
 	}
 
-    int time = timeStop();
+	int time = timeStop();
 
 #if DO_PRINT
 	printf("\b\b\b\b\b4 / 4 ... Done !\n");
 #endif // DO_PRINT
 
 	//printf("PI = ");	dispNumber(&ans);
-    printf("PI (Default)      = ");    dispNumber(&ans);   putchar('\n');
+	printf("PI (Default)      = ");    dispNumber(&ans);   putchar('\n');
 	//次行で表示している値はRADIX=10000に最適化し、予測した有効桁の表示を行っています。表示されている有効桁は正しくない場合があります。
 	printf("PI (Optimization) = ");	dispResult(&ans);   putchar('\n');
 	printf("time: %d [s]\n", time);
@@ -249,7 +250,7 @@ int culPI(void)
 void dispResult(struct NUMBER* a)
 {
 	int i, cnt = -1;
-	if (getSign(a)  ==  SIGN_PLUS)	putchar('+');
+	if (getSign(a) == SIGN_PLUS)	putchar('+');
 	else							putchar('-');
 
 #if RADIX == 10000
@@ -258,7 +259,7 @@ void dispResult(struct NUMBER* a)
 		if (cnt == -1 && a->n[i] == 0) {
 			continue;
 		}
-	    if(cnt == -1 && (a->n[i] > 0 || i == 0)) {
+		if (cnt == -1 && (a->n[i] > 0 || i == 0)) {
 
 			//0以外が来た最初の桁
 			if (a->n[i] / 1000) {		//a->n[i]が4桁
@@ -299,19 +300,19 @@ void dispResult(struct NUMBER* a)
 			break;
 		}
 	}
-#elif RADIX == 10
+#else
 
-for (i = KETA - 1; i >= 0; i--) {
+	for (i = KETA - 1; i >= 0; i--) {
 		if (cnt == -1 && a->n[i] == 0) {
 			continue;
 		}
-		else if(cnt && (a->n[i] > 0 || i == 0)) {
+		else if (cnt && (a->n[i] > 0 || i == 0)) {
 			//0以外が来た最初の桁
 			printf("%1d.", a->n[i]);
-            cnt++;
+			cnt++;
 		}
 		else {
-            printf("%1d", a->n[i]);
+			printf("%1d", a->n[i]);
 		}
 	}
 
