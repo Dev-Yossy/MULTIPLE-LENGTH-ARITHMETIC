@@ -3,21 +3,22 @@
 //                               多倍長演算を行う変数と関数
 //
 // * コンパイル時オプション (-D [option], -D[option], -D [option=data], -D[option=data]):
-//       _KETA_ : コンパイル時に桁数(KETA)の値を変更することができる.
-//       _USE_RANDOM_ : コンパイル時に乱数生成関数設定(USE_RANDOM)の値を変更することができる.
+//       KETA : コンパイル時に桁数(KETA)の値を変更することができる.
+//       RADIX : コンパイル時に進数(RADIX)の値を変更することができる.
+//       USE_RANDOM : コンパイル時に乱数生成関数設定(USE_RANDOM)の値を変更することができる.
 // * 型 :
 //       struct NUMBER : 多倍長整数型
 //       struct BUNSU  : 多倍長分数型
 //
-// * 定義可能マクロ
-//       _KETA_ : 多倍長整数型, 多倍長分数型(分母, 分子) の桁数
+// * 定義済マクロ
+//       KETA : 多倍長整数型, 多倍長分数型(分母, 分子) の桁数
 //           - 範囲 : 1 以上(デフォルト:20)
 //           - 補足 : 桁数が小さすぎると動作が不安定になる可能性あり. 
 //                    PIを求める際はRADIX=10000では4以上推奨, RADIX=10では16以上推奨.
-//	     _RADIX_ : 進数変更
+//	     RADIX : 進数変更
 //           - 範囲 : 10, 10000(デフォルト)
 //           - 補足 : PIを求める際は 10進数では KETA >= 16, 10000進数では KETA >= 4 である必要がある.
-//       _USE_RANDOM_ : 乱数生成関数選択
+//       USE_RANDOM : 乱数生成関数選択
 //           - 範囲 : 0, 非0
 //           - 補足 : 0のときはどの環境においても「rand関数」「srand関数」を使用する.
 //                    1のときは「 _DEBUG 」「 __WIN32__ 」が定義されていない環境(主にLinux
@@ -41,28 +42,24 @@
 
 
 // 小数点以下必要な桁数 * 2 = KETA ... きれいな値の方が良い
-#define USE_RANDOM 1
 //RADIX = 10000 ... KETA = ROOP * 4 が望ましい(というかそれに最適化している)
 //RADIX = 10    ... KETA = ROOP * 16 が望ましい(というかそれに最適化している)
-#define KETA 40		//桁数
-#define RADIX 10000	//進数
-#define SIGN_PLUS 1
-#define SIGN_MINUS -1
 //コンパイル時に「 -D _KETA_=[桁数] 」または 「 -D_KETA_=[桁数] 」を指定すればコンパイル時に桁を変更できる.
-#ifdef _KETA_
-#undef KETA
-#define KETA _KETA_
-#endif
-//コンパイル時に「 -D _RADIX_=[進数] 」または 「 -D_RADIX_=[進数] 」を指定すればコンパイル時に桁を変更できる.(10, 1000のみに対応. デフォルトは10000)
-#if _RADIX_ == 10
-#undef RADIX
-#define RADIX 10
+#ifndef KETA
+#define KETA 20		//桁数
 #endif
 
+//コンパイル時に「 -D _RADIX_=[進数] 」または 「 -D_RADIX_=[進数] 」を指定すればコンパイル時に桁を変更できる.(10, 1000のみに対応. デフォルトは10000)
+#ifndef RADIX
+#define RADIX 10000	//進数
+#endif
+
+#define SIGN_MINUS -1
+#define SIGN_PLUS 1
+
 //乱数生成関数処理
-#ifdef _USE_RANDOM_
-#undef USE_RANDOM
-#define USE_RANDOM _USE_RANDOM_
+#ifndef USE_RANDOM
+#define USE_RANDOM 1
 #endif
 
 #if !USE_RANDOM || (defined _DEBUG) || (defined __WIN32__)
