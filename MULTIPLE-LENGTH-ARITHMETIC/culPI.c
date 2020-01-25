@@ -30,8 +30,8 @@ int culPI(void)
 	clearByZero(&ans);
 	clearByZero(&trush);
 
-	clearByZero(&A);
-	clearByZero(&B);
+	//clearByZero(&A);
+	//clearByZero(&B);
 	clearByZero(&C);
 	clearByZero(&D);
 	clearByZero(&E);
@@ -62,9 +62,9 @@ int culPI(void)
 	flg += setInt(&num_6, 6);
 
 	// A
-	flg += setInt(&A, 9);
+	//flg += setInt(&A, 9);
 	// B
-	flg += setInt(&B, 8);
+	//flg += setInt(&B, 8);
 	// C
 	flg += setInt(&C, 16);
 	// D
@@ -82,7 +82,8 @@ int culPI(void)
 	// P ループ最大回数
 	flg += setInt(&P, ROOP);
 	// R = A / B
-	NtoB_copyNumber(&A, &B, &R);
+	//NtoB_copyNumber(&A, &B, &R);
+	B_setInt(&R, 9, 8);
 
 	if (flg) {
 		printf(" Error: where.CulPI.Setup\n");
@@ -122,15 +123,15 @@ int culPI(void)
 		flg += increment(&L, &M);				// 6n+5 ... M
 
 		// I
-		flg += Dev_power(&I, &SN_2, &I);		// (6n+1)^2 ... I
+		flg += Dev_multiple(&I, &I, &I);		// (6n+1)^2 ... I
 		// J
-		flg += Dev_power(&J, &SN_2, &J);		// (6n+2)^2 ... J
+		flg += Dev_multiple(&J, &J, &J);		// (6n+2)^2 ... J
 		// K
-		flg += Dev_power(&K, &SN_2, &K);		// (6n+3)^2 ... K
+		flg += Dev_multiple(&K, &K, &K);		// (6n+3)^2 ... K
 		// L
-		flg += Dev_power(&L, &SN_2, &L);		// (6n+4)^2 ... L
+		flg += Dev_multiple(&L, &L, &L);		// (6n+4)^2 ... L
 		// M
-		flg += Dev_power(&M, &SN_2, &M);		// (6n+5)^2 ... M
+		flg += Dev_multiple(&M, &M, &M);		// (6n+5)^2 ... M
 
 		//1/H -> S
 		NtoB_copyNumber(&SN_1, &H, &S);
@@ -239,6 +240,7 @@ int culPI(void)
 
 	//printf("PI = ");	dispNumber(&ans);
 	printf("PI (Default)      = ");    dispNumber(&ans);   putchar('\n');
+	//次行で表示している値はRADIX=10000に最適化し、予測した有効桁の表示を行っています。表示されている有効桁は正しくない場合があります。
 	printf("PI (Optimization) = ");	dispResult(&ans);   putchar('\n');
 	printf("time: %d [s]\n", time);
 
@@ -295,11 +297,10 @@ void dispResult(struct NUMBER* a)
 			else if (cnt + 1 == KETA / 2) {
 				printf("%01d", a->n[i] / 1000);
 			}
-
 			break;
 		}
 	}
-#elif RADIX == 10
+#else
 
 	for (i = KETA - 1; i >= 0; i--) {
 		if (cnt == -1 && a->n[i] == 0) {

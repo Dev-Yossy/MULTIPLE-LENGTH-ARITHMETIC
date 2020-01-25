@@ -2,12 +2,9 @@
 
 #include "mulprec.h"
 
-//定義済みマクロ
+//定義済マクロ
+#ifndef DO_PRINT
 #define DO_PRINT	1
-
-#ifdef _DO_PRINT_
-#undef DO_PRINT
-#define DO_PRINT _DO_PRINT_
 #endif
 
 #if RADIX == 10000
