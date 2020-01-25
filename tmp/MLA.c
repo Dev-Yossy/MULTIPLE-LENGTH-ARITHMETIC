@@ -13,8 +13,8 @@
 
 #define ROOP_ADD		0
 #define ROOP_SUB		0
-#define ROOP_MUL		0
-#define ROOP_D_MUL		0
+#define ROOP_MUL		1
+#define ROOP_D_MUL		1
 #define ROOP_DIV		0
 #define ROOP_D_DIV		0
 #define ROOP_DX_DIV		0
@@ -62,19 +62,19 @@ int main(void)
 
 	srandom((unsigned)time(NULL));
 
-	/*	*/
+	/*
 	//初期設定
 	MLAsetup();
 
 	if (culPI())
-		printf("\nFailed...\n");
+		printf("\n失敗...\n");
 	else
-		printf("\nSuccessfully Completed !\n");
+		printf("\n成功 !\n");
 
 	return 0;
+	*/
 
 
-/*
 	//初期設定
 	MLAsetup();
 
@@ -806,5 +806,5 @@ int main(void)
 	}
 
 	return 0;
-*/
+
 }

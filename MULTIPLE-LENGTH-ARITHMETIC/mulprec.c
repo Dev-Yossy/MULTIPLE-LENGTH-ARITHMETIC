@@ -47,13 +47,15 @@ void dispNumber(struct NUMBER* a)
 	if (getSign(a) == SIGN_PLUS)	putchar('+');
 	else							putchar('-');
 
-#if RADIX == 10000
-	for (i = KETA - 1; i >= 0; i--)
-		printf("%04d", a->n[i]);        //数字確認用
-#else
-	for (i = KETA - 1; i >= 0; i--)
-		printf("%1d", a->n[i]);        //数字確認用
-#endif
+	if (KETA == 1000) {
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%04d", a->n[i]);        //数字確認用
+	}
+	else if (KETA == 10) {
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%1d", a->n[i]);        //数字確認用
+	}
+
 }
 
 
@@ -1100,7 +1102,11 @@ int sqrt_newton(struct NUMBER* a, struct NUMBER* b)
 
 	copyNumber(&x, &x_b);
 	//copyNumber(&x, &x_c);
+	putchar('\n');//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	while (1) {
+
+		putchar('\r');	dispNumber(&x);//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 		copyNumber(&x_b, &x_c);
 		copyNumber(&x, &x_b);
 
@@ -1121,9 +1127,91 @@ int sqrt_newton(struct NUMBER* a, struct NUMBER* b)
 			break;
 		}
 	}
+	putchar('\n');//:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 	copyNumber(&x, b);
 	return 0;
 }
+
+/*
+///////////////////////////////////////////////////////////////////
+//概要：多倍長変数aにおいてaの平方根を二分法を用いて求めてbに格納する(正式にはsqrt(a)を超えない最大の整数をbに格納する)
+//引数：struct NUMBER* a : 平方根を求める多倍長変数, struct NUMBER* b : 平方根を格納する多倍長変数
+//戻値：成功 : 0, 失敗 : -1(cの値は変化しない), 符号が同じ : -2(cの値は変化しない)
+///////////////////////////////////////////////////////////////////
+int bisection(struct NUMBER* a, struct NUMBER* b, struct NUMBER* need_sqrt, struct NUMBER* c)
+{
+	struct NUMBER e;	//収束判定用の変数
+	struct NUMBER d;	//現在のxの値
+	struct NUMBER fx, fa, fb;	//f(x), f(a), f(b)の値
+	struct NUMBER num_plus, num_minus, num2, trush;
+	int as, bs, cs;		//f(a), f(b), f(c)の符号
+
+	clearByZero(&e);
+	clearByZero(&d);
+	clearByZero(&fx);
+	clearByZero(&fa);
+	clearByZero(&fb);
+	clearByZero(&num_plus);
+	clearByZero(&num_minus);
+	clearByZero(&num2);
+	clearByZero(&trush);
+
+	setInt(&num2, 2);
+
+	if (f(a, need_sqrt, fa))
+		return -1;
+	as = getSign(fa);
+
+	if (f(b, need_sqrt, fb))
+		return -1;
+	bs = getSign(&fb);
+
+	if (as <= bs)
+		return -2
+
+	copyNumber(a, &num_plus);
+	copyNumber(b, &num_minus);
+
+	while (1){
+		if (add(&num_plus, &num_minus, &d))
+			return -1;
+		if(Dev_divide(&d, &num2, &d, &trush))
+			return -1;
+		//d = (a + b) / 2
+		if(f(&d, need_sqrt, &fx))
+			return -1;
+		if (getAbs(&fx, &fx))
+			return -1;
+
+		cs = numComp(&fx, e);
+
+		if (cs <= 0)	//|f(x)| < e
+			break;
+		if(getSign(&fx) == as)
+			copyNumber(&d, &num_plus);
+
+		if (sub(&fa, &fb, &d))
+			return -1;
+
+	}
+
+}
+
+int f(struct NUMBER* a, struct NUMBER* pow_pi_2, struct NUMBER* b)
+{
+	struct NUMBER a2;
+	clearByZero(&a2);
+
+	//x*x - (pi^2)
+	if (Dev_multiple(a, a, &a2))
+		return -1;
+	if (sub(&a2, pow_pi_2, &a2))
+		return -1;
+	copyNumber(&a2, b);
+	return 0;
+}
+*/
 
 
 ///////////////////////////////////////////////////////////////////
@@ -1144,19 +1232,20 @@ void B_dispNumber(struct BUNSU* a)
 	if (B_getSign(a) == SIGN_PLUS)	putchar('+');
 	else							putchar('-');
 
-#if RADIX == 10000
-	for (i = KETA - 1; i >= 0; i--)
-		printf("%01d", a->bunshi.n[i]);
-	putchar('/');
-	for (i = KETA - 1; i >= 0; i--)
-		printf("%01d", a->bunbo.n[i]);
-#else
-	for (i = KETA - 1; i >= 0; i--)
-		printf("%01d", a->bunshi.n[i]);
-	putchar('/');
-	for (i = KETA - 1; i >= 0; i--)
-		printf("%01d", a->bunbo.n[i]);
-#endif
+	if (KETA == 1000) {
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%01d", a->bunshi.n[i]);
+		putchar('/');
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%01d", a->bunbo.n[i]);
+	}
+	else if (KETA == 10) {
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%01d", a->bunshi.n[i]);
+		putchar('/');
+		for (i = KETA - 1; i >= 0; i--)
+			printf("%01d", a->bunbo.n[i]);
+	}
 }
 
 int B_getSign(struct BUNSU* a)
